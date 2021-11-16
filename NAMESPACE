@@ -1,0 +1,8 @@
+exportPattern("^[[:alpha:]]+")
+import(dplyr)
+import(ggplot2)
+import(tidyr)
+import(lubridate)
+import(ggforce)
+import(ROracle)
+import(chron)

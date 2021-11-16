@@ -1,0 +1,127 @@
+---
+title: "Eastern Nova Scotia Snow Crab"
+author: "Snow Crab Unit"
+date: "February 2021"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+options(dplyr.summarise.inform = FALSE)
+library(ggplot2)
+library(ggforce)
+library(tidyr)
+library(data.table)
+library(scales)
+library(knitr) 
+library(ggrepel) 
+library(tidyverse) 
+
+library(kableExtra)
+
+```
+## Slide with Bullets
+
+- Commercial Fishery
+    Landings
+    Catch rates
+    Fishing positions
+- At-Sea Observer
+    
+- DFO Business
+    2021 Survey
+    Collaborative Agreement
+    
+
+
+```{r Table 1, echo=FALSE, fig.cap="Landings.", out.width = '100%', fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::include_graphics("C:/Rsaves/fishery/2020/landing_data.pdf")
+
+
+
+#create table with Area, Year, TAC, Landings, Catch Rate (lbs/trap) for NENS, cfa23, cfa 24 for last 3 years
+```
+
+```{r figure 1, echo=FALSE, fig.cap="Weekly Landings", out.width = '100%', fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::include_graphics("C:/Rsaves/fishery/2020/2020_NENS_weekly_landing.pdf")
+knitr::include_graphics("C:/Rsaves/fishery/2020/2020_cfa23_weekly_landing.pdf")
+knitr::include_graphics("C:/Rsaves/fishery/2020/2020_cfa24_weekly_landing.pdf")
+
+
+
+```
+
+```{r figure 2, echo=FALSE, fig.cap="Spring Landings", out.width = '100%', fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::include_graphics("C:/Rsaves/fishery/2020/2020_percent_spring_landings.pdf")
+
+
+```
+
+```{r figure 3, echo=FALSE, fig.cap="Active vessels", out.width = '100%', fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::include_graphics("C:/Rsaves/fishery/2020/2020_vessels_per_year.pdf")
+
+
+```
+
+```{r figure 4, echo=FALSE, fig.cap="Annual Catch Rates", out.width = '100%', fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::include_graphics("C:/Rsaves/fishery/2020/2020_annual_cpue_kg.pdf")
+
+
+```
+
+```{r figure 5, echo=FALSE, fig.cap="Weekly Catch Rates", out.width = '100%', fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::include_graphics("C:/Rsaves/fishery/2020/weekly_cpue_smoothed.pdf")
+
+
+```
+
+```{r figure 6, echo=FALSE, fig.cap="Reported Fishing Positions", out.width = '100%', fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::include_graphics("C:/Rsaves/fishery/2020/nens_past_two_years_fishing_positions.pdf")
+
+
+```
+
+```{r figure 7, echo=FALSE, fig.cap="Reported Fishing Positions", out.width = '100%', fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::include_graphics("C:/Rsaves/fishery/2020/cfa23_past_two_years_fishing_positions.pdf")
+
+
+```
+
+```{r figure 8, echo=FALSE, fig.cap="Reported Fishing Positions", out.width = '100%', fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::include_graphics("C:/Rsaves/fishery/2020/sens_past_two_years_fishing_positions.pdf")
+
+
+```
+
+```{r figure 9, echo=FALSE, fig.cap="Seasonal Fishing Positions", out.width = '100%', fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::include_graphics("C:/Rsaves/fishery/2020/sens_past_two_years_fishing_positions.pdf")
+
+
+```
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+

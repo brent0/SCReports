@@ -1,0 +1,10 @@
+Package: SCReports
+Type: Package
+Title: Generate Snow Crab Reports
+Version: 0.1.0
+Author: Brent Cameron
+Maintainer: Brent Cameron <Brent.Cameron@dfo-mpo.gc.ca>
+Description: Allows full or partial generation of reports supplied by Snow Crab science on the Scotian Shelf.
+License: MIT
+Encoding: UTF-8
+LazyData: true
