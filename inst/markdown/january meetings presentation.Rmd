@@ -1,0 +1,130 @@
+---
+title: "Eastern Nova Scotia Snow Crab"
+author: Snow Crab Unit
+date: February 2022
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+options(dplyr.summarise.inform = FALSE)
+library(ggplot2)
+library(ggforce)
+library(tidyr)
+library(data.table)
+library(scales)
+library(knitr) 
+library(ggrepel) 
+library(tidyverse) 
+
+library(kableExtra)
+
+year = 2021
+wd = file.path(bio.datadirectory, "bio.snowcrab", "reports", year, "JanuaryMeetings", "fishery")
+```
+## Slide with Bullets
+
+- Commercial Fishery
+    Landings
+    Catch rates
+    Fishing positions
+- At-Sea Observer
+    
+- DFO Business
+    2021 Survey
+    Collaborative Agreement
+
+---
+
+
+
+```{r Table 1, include=TRUE, fig.cap="Landings.", fig.align="center"}
+knitr::include_graphics(file.path(wd, "landing_data_Tac.pdf"))
+
+#create table with Area, Year, TAC, Landings, Catch Rate (lbs/trap) for NENS, cfa23, cfa 24 for last 3 years
+```
+
+---
+
+
+```{r figure 1, echo=FALSE, fig.align="center", fig.cap="Weekly}
+knitr::include_graphics(file.path(wd, "NENS_weekly_landing.pdf"))
+knitr::include_graphics(file.path(wd, "cfa23_weekly_landing.pdf"))
+knitr::include_graphics(file.path(wd, "cfa24_weekly_landing.pdf"))
+
+```
+
+---
+
+
+
+```{r figure 2, out.width="0.1\\linewidth", include=TRUE, fig.align="center", fig.cap="Spring Landings (April-May-June)", fig.align="center"}
+knitr::include_graphics(file.path(wd, "percent_spring_landings.pdf"))
+
+```
+
+---
+
+
+```{r figure 3, out.width="0.3\\linewidth", include=TRUE, fig.align="center", fig.cap="Active vessels", fig.align="center"}
+knitr::include_graphics(file.path(wd, "vessels_per_year.pdf"))
+
+
+```
+
+---
+
+
+```{r figure 4, out.width="0.3\\linewidth", include=TRUE, fig.align="center", fig.cap="Annual Catch Rates", fig.align="center"}
+knitr::include_graphics(file.path(wd, "annual_cpue_kg.pdf"))
+
+
+```
+
+---
+
+
+```{r figure 5, out.width="0.3\\linewidth", include=TRUE, fig.align="center", fig.cap="Weekly Catch Rates", fig.align="center"}
+
+knitr::include_graphics(file.path(wd, "weekly_cpue_smoothed2.pdf"))
+
+
+```
+
+---
+
+
+```{r figure 6, out.width="0.3\\linewidth", include=TRUE, fig.align="center", fig.cap="Reported Fishing Positions", fig.align="center"}
+knitr::include_graphics(file.path(wd, "nens_past_two_years_fishing_positions.pdf"))
+
+
+```
+
+---
+
+
+```{r figure 7, out.width="0.3\\linewidth", include=TRUE, fig.align="center", fig.cap="Reported Fishing Positions", fig.align="center"}
+knitr::include_graphics(file.path(wd, "cfa23_past_two_years_fishing_positions.pdf"))
+
+
+```
+
+---
+
+
+```{r figure 8, out.width="0.3\\linewidth", include=TRUE, fig.align="center", fig.cap="Reported Fishing Positions"}
+knitr::include_graphics(file.path(wd, "sens_past_two_years_fishing_positions.pdf"))
+
+
+```
+
+---
+
+
+```{r figure 9, out.width="0.3\\linewidth", include=TRUE, fig.align="center", fig.cap="Seasonal Fishing Positions"}
+knitr::include_graphics(file.path(wd, "sens_past_two_years_fishing_positions.pdf"))
+
+
+```
+

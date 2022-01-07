@@ -7,4 +7,5 @@ Maintainer: Brent Cameron <Brent.Cameron@dfo-mpo.gc.ca>
 Description: Allows full or partial generation of reports supplied by Snow Crab science on the Scotian Shelf.
 License: MIT
 Encoding: UTF-8
+Depends: dplyr, ggplot2, tidyr, lubridate, gstat, kableExtra, webshot, ggforce, ROracle, PBSmapping, doBy, devEMF, bio.base, bio.utilities, gridExtra, lattice
 LazyData: true
