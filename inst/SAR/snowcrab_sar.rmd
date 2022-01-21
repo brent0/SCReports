@@ -3,44 +3,41 @@ title: "Snow crab assessment"
 author: "Snow crab group"
 date: "Version timestamp `r format(Sys.time(), '%d %B, %Y')`"
 always_allow_html: true
-# output: html
-# output: 
-#     word_document:
-#         reference_docx: media/SRR-RS2021-eng.docx
+output: 
+  # html_document
+  word_document:
+    reference_docx: media/SRR-RS2021-eng.docx
+# other outputs: pdf_document, ioslides_presentation, powerpoint_presentation
 bibliography: media/snowcrab.bib 
 csl: media/csas.csl
 # csl is citation style download from: https://www.zotero.org/styles
 # csas.csl copied from "csasdown"
-# other outputs: pdf_document, ioslides_presentation, powerpoint_presentation
 # To convert via pandoc (with a style template .. odt and docx): 
 #   pandoc -t docx snowcrab_sar.rmd -o snowcrab_sar.docx --reference-doc=SRR-RS2021-eng.docx
 # To create from within R
 #   setwd("location_of_this_file.rmd")
-#   rmarkdown::render("snowcrab_sar.rmd", output_dir="tmp", params=list(year.assessment=2021) )
+#   rmarkdown::render("snowcrab_sar.rmd", output_dir="tmp", params=list(year.assessment=2021 ) )
 params:
   year.assessment: 2020
-  working_directory: "/home/jae/projects/snowcrab_sar/"
+  # working_directory: "/home/jae/bio/SCReports/inst/SAR"
 
 ---
 
 
 <!--- set up R-environment --->
 ```{r setup, include=FALSE}
-  knitr::opts_chunk$set(
-    # fig.pos = "!H", out.extra = "" # no floats
-    echo = FALSE
-  )
-  require(kableExtra )
+  knitr::opts_chunk$set( echo = FALSE,  out.width="6in", dpi=600 )
+  require(kableExtra)
 
-  # set pander table-layout options
-  library(pander)
-  panderOptions("table.alignment.default", function(df)
-      ifelse(sapply(df, is.numeric), "right", "left"))
-  panderOptions("table.split.table", Inf)
-  panderOptions("big.mark", ",")
-  panderOptions("keep.trailing.zeros", TRUE)
+  # # set pander table-layout options
+  # library(pander)
+  # panderOptions("table.alignment.default", function(df)
+  #     ifelse(sapply(df, is.numeric), "right", "left"))
+  # panderOptions("table.split.table", Inf)
+  # panderOptions("big.mark", ",")
+  # panderOptions("keep.trailing.zeros", TRUE)
 
-  setwd( params$working_directory )
+  # setwd( params$working_directory )
  
 ```
 
@@ -50,7 +47,7 @@ params:
 
 | <!-- -->    | <!-- -->    |
 |:---: |:--- |
-| <img src="/home/jae/projects/snowcrab_sar/media/snowcrab_image.png" alt="snowcrab image" width="75%"/>  | <img src="/home/jae/projects/snowcrab_sar/media/snowcrab_cfas.png" alt="snowcrab cfas" width="100%"/>  |
+| ![](media/snowcrab_image.png) <!-- .element width="40%" --> | ![](media/snowcrab_cfas.png) <!-- .element width="50%" -->   |
 | *Snow Crab (Chionoecetes opilio, O. Fabricius)*  | *Figure 1. Map of the Scotian Shelf and Crab  Fishing Areas (CFAs). Original figure in colour.*  |
 | <!-- -->    | <!-- -->    |
 
@@ -102,16 +99,25 @@ Snow Crab (*Chionoecetes opilio*, O. Fabricius) is a subarctic species with a di
 
 The Snow Crab fishery in eastern Canada began in 1960 with incidental bycatches by groundfish draggers near Gaspé, Quebec. Its development was slow until the 1980s, when it began expanding rapidly to become one of the largest fisheries in Canada in terms of landings and landed value. On the Scotian Shelf, the fishery has been in existence since the early 1970s. The Scotian Shelf Snow Crab fishery lands only males with CW ≥ 95 mm. There is also a concerted effort to avoid areas of newly moulted (soft-shelled) crab and to discard immature males. The North-Eastern Nova Scotia (N-ENS) and South-Eastern Nova Scotia (S- ENS) fisheries are conducted within a calendar year. The 4X fishery is conducted over a fall to winter fishing season spanning calendar years. Total landings increased to record-levels of approximately 10,000 tonnes (t) each year in the early 2000s and increased further to approximately 14,000 t in 2010 (Figure 2). In 2005, many Crab Fishing Areas (CFAs) and subareas were merged, with the resulting divisions being N-ENS (formerly CFAs 20-22), S-ENS (CFAs 23 and 24), and 4X (Figure 1). 
 
-```{r echo=FALSE, fig.align="center", out.width = '80%'}
+```{r echo=FALSE, out.width = '80%'}
+  currentwd = getwd()
   year.assessment = params$year.assessment
   p = bio.snowcrab::load.environment( year.assessment=year.assessment )
+  setwd( currentwd )
   FD = fisherydata_summary()
   year_previous = year.assessment - 1
   l_nens = round(FD$landings[which(FD$region=="cfanorth" & FD$yr==year.assessment)])
   l_sens = round(FD$landings[which(FD$region=="cfasouth" & FD$yr==year.assessment)])
-  dt_l_ens = round((FD$landings[which(FD$region=="cfanorth" & FD$yr==year.assessment)] - FD$landings[which(FD$region=="cfanorth" & FD$yr==(year.assessment-1))])  / FD$landings[which(FD$region=="cfanorth" & FD$yr==(year.assessment-1))] *100 )
-  dt_s_ens = round((FD$landings[which(FD$region=="cfasouth" & FD$yr==year.assessment)]- FD$landings[which(FD$region=="cfasouth" & FD$yr==(year.assessment-1))] )/ FD$landings[which(FD$region=="cfasouth" & FD$yr==(year.assessment-1))] *100 )
+  dt_l_nens = round((FD$landings[which(FD$region=="cfanorth" & FD$yr==year.assessment)] - FD$landings[which(FD$region=="cfanorth" & FD$yr==(year.assessment-1))])  / FD$landings[which(FD$region=="cfanorth" & FD$yr==(year.assessment-1))] *100 )
+  dt_l_sens = round((FD$landings[which(FD$region=="cfasouth" & FD$yr==year.assessment)]- FD$landings[which(FD$region=="cfasouth" & FD$yr==(year.assessment-1))] )/ FD$landings[which(FD$region=="cfasouth" & FD$yr==(year.assessment-1))] *100 )
   
+  dt = as.data.frame( FD[ which(FD$yr %in% c(year.assessment - c(0:10))),] )
+  n = ( which(dt$region=="cfanorth") )
+  s = ( which(dt$region=="cfasouth") )
+  x = ( which(dt$region=="cfa4x") )
+  dt =  dt[,c("yr", "Licenses", "TAC", "landings", "effort", "cpue")] 
+  names(dt) = c("Year", "Licenses", "TAC", "Landings", "Effort", "CPUE") 
+  rownames(dt) = NULL
   
   tac_nens = FD$TAC[which(FD$yr==year.assessment & FD$region=="cfanorth")]
   tac_sens = FD$TAC[which(FD$yr==year.assessment & FD$region=="cfasouth")]
@@ -120,47 +126,68 @@ The Snow Crab fishery in eastern Canada began in 1960 with incidental bycatches 
   
 ```
 
-Landings in `r year.assessment` for N-ENS and S-ENS were `r l_nens` t and `r l_sens` t, respectively, representing a change of `r dt_l_ens`% (N-ENS) and   `r dt_s_ens`% (S-ENS) relative to the previous year (Figure 2, Table 1). Total Allowable Catches for `r year.assessment` were `r tac_nens` t, `r tac_sens` t and `r tac_4x` t in N-ENS, S-ENS and 4X, respectively. The `r year.assessment`/`r year.assessment+1` season in area 4X is currently underway with a TAC of `r tac_4x_cur` t.
+Landings in `r year.assessment` for N-ENS and S-ENS were `r l_nens` t and `r l_sens` t, respectively, representing a change of `r dt_l_nens`% (N-ENS) and   `r dt_l_sens`% (S-ENS) relative to the previous year (Figure 2, Tables 1-3). Total Allowable Catches for `r year.assessment` were `r tac_nens` t, `r tac_sens` t and `r tac_4x` t in N-ENS, S-ENS and 4X, respectively. The `r year.assessment`/`r year.assessment+1` season in area 4X is currently underway with a TAC of `r tac_4x_cur` t.
 
 </br>
 
 
-```{r echo=FALSE, fig.align="center", out.width = '80%'}
+```{r echo=FALSE }
   fisherydata_summary( FD=FD, toget="timeseries_landings" ) 
 ```
-*Figure 2. Temporal variations in the landings (t) of Snow Crab on the Scotian Shelf. The landings follow the Total Allowable Catches (TACs) with little deviation, so the TACs are not shown. For 4X, the year refers to the starting year of the season. For NENS and 4X, the values are multiplied by 5 to be on a comparable scale.*
 
-```{r fishery_table, echo=FALSE }
-# knitr::kable(FD)
-dt = as.data.frame( FD[ which(FD$yr %in% c(year.assessment - c(0:12))),] )
-n = range( which(dt$region=="cfanorth") )
-s = range( which(dt$region=="cfasouth") )
-x = range( which(dt$region=="cfa4x") )
-dt =  dt[,c("yr", "Licenses", "TAC", "landings", "effort", "cpue")] 
-names(dt) = c("Year", "Licenses", "TAC", "Landings", "Effort", "CPUE") 
-rownames(dt) = NULL
-kbl(dt) %>% 
-  kable_paper("basic", position="center", full_width = F, font_size = 11) %>%
-  pack_rows("CFA4X", x[1], x[2]) %>% 
-  pack_rows("SENS", s[1], s[2]) %>%
-  pack_rows("NENS", n[1], n[2]) 
-```
+*Figure 2. Temporal variations in the landings (t) of Snow Crab on the Scotian Shelf. The landings follow the Total Allowable Catches (TACs) with little deviation, so the TACs are not shown. For 4X, the year refers to the starting year of the season. For NENS and 4X, the values are multiplied by 5 to be on a comparable scale.*
 
 </br>
 
-*Table 1. Summary of the Snow Crab fishery in North-Eastern Nova Scotia. The units for TAC and Landings are  tons; for CPUE, kg/ht; and for Effort 1000 trap hauls. In 4X, there were no landings or TACs in 2018/2019 due indications of low abundance.*
+```{r fishery_table_nens, echo=FALSE }
+kable(dt[n,], format="simple", row.names=FALSE, align="ccccc" ) 
+```
+
+*Table 1. Summary of the Snow Crab fishery in North-Eastern Nova Scotia. The units for TAC and Landings are  tons; for CPUE, kg/ht; and for Effort 1000 trap hauls.* 
+
+
+</br>
+
+
+```{r fishery_table_sens, echo=FALSE }
+kable(dt[s,], format="simple", row.names=FALSE, align="ccccc" )
+```
+
+*Table 2. Summary of the Snow Crab fishery in South-Eastern Nova Scotia. The units for TAC and Landings are  tons; for CPUE, kg/ht; and for Effort 1000 trap hauls.*
+
+
+</br>
+
+```{r fishery_table_4x, echo=FALSE }
+kable(dt[x,], format="simple", row.names=FALSE, align="ccccc" )
+```
+
+*Table 3. Summary of the Snow Crab fishery in North-Eastern Nova Scotia. The units for TAC and Landings are  tons; for CPUE, kg/ht; and for Effort 1000 trap hauls. There were no landings or TACs in 2018/2019 due multiple indications of low abundance.*
+
+</br>
 
 
 In 2019, the majority of N-ENS landings came almost exclusively from the inner grounds, not the Glace Bay Hole (Figure 1). In S-ENS, a general offshore shift of landings was observed from the 2018 season (Map 1). There were no landings on the continental slope areas of S-ENS in 2019. 
 
-Non-standardized catch rates in 2019 were 87 kg/trap haul in N-ENS and 105 kg/trap haul in S‑ENS. This represents an increase of 40% (N-ENS) and a decrease of 9% (S-ENS) relative to the previous year (Table 1, Figure 3, Map 2). The effect of TACs on catch rates can confound direct comparison over time and between management areas.
+
+```{r echo=FALSE }
+  c_nens = round(FD$cpue[which(FD$region=="cfanorth" & FD$yr==year.assessment)])
+  c_sens = round(FD$cpue[which(FD$region=="cfasouth" & FD$yr==year.assessment)])
+  dt_c_nens = round((FD$cpue[which(FD$region=="cfanorth" & FD$yr==year.assessment)] - FD$cpue[which(FD$region=="cfanorth" & FD$yr==(year.assessment-1))])  / FD$cpue[which(FD$region=="cfanorth" & FD$yr==(year.assessment-1))] *100 )
+  dt_c_sens = round((FD$cpue[which(FD$region=="cfasouth" & FD$yr==year.assessment)]- FD$cpue[which(FD$region=="cfasouth" & FD$yr==(year.assessment-1))] )/ FD$cpue[which(FD$region=="cfasouth" & FD$yr==(year.assessment-1))] *100 )
+  
+```
+
+Non-standardized catch rates in `r year.assessment` were `r c_nens` kg/trap haul in N-ENS and `r c_sens` kg/trap haul in S‑ENS. This represents a change of `r dt_c_nens` % (N-ENS) and `r dt_c_sens` % (S-ENS) relative to the previous year (Tables 1-3, Figure 3, Map 2). The effect of TACs on catch rates can confound direct comparison over time and between management areas.
 
 
-```{r echo=FALSE, fig.align="center", out.width = '80%'}
+```{r echo=FALSE }
   fisherydata_summary( FD=FD, toget="timeseries_cpue" ) 
 ```
 
 Figure 3. Temporal variations in catch rates of Snow Crab on the Scotian Shelf, expressed as kg per trap haul. Trap design and size have changed over time. No corrections have been made for variation in trap-types, soak time, or bait-type.
+
+</br>
 
 Carapace Condition (CC) defines the approximate age (since terminal moult) of the terminally moulted crab based on the relative development and subsequent decay of the carapace. CC1 signifies a newly moulted crab, soft-shelled, with no epibiont (e.g., barnacles) growth. CC2 has begun to harden, but is still considered to be soft and of no commercial value. CC3 and CC4 represent ideal commercial crab. The oldest carapace condition (CC5) signifies extensive shell decay with no expectation of survival into the next year.
 
@@ -201,7 +228,7 @@ maximum sustainable yield, or F~MSY~) associated with the harvest
 control rules of the Snow Crab fishery.
 
 -----------------------------------------------------------------------
-  ![](media/biomass_geometricmean_timeseries.png){width="3.9279997812773404in" height="3.72in"}
+  ![](media/biomass_geometricmean_timeseries.png){width="80%"}
   -----------------------------------------------------------------------
   Figure 5. Time series of geometric mean fishable biomass (t/km2)
   obtained from the annual Snow Crab survey. Error bars represent 95%
