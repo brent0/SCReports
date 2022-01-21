@@ -2,19 +2,21 @@
 title: "Snow crab assessment"
 author: "Snow crab group"
 date: "Version timestamp `r format(Sys.time(), '%d %B, %Y')`"
-output: 
-    word_document:
-        reference_docx: media/SRR-RS2021-eng.docx
+always_allow_html: true
+# output: html
+# output: 
+#     word_document:
+#         reference_docx: media/SRR-RS2021-eng.docx
 bibliography: media/snowcrab.bib 
 csl: media/csas.csl
 # csl is citation style download from: https://www.zotero.org/styles
 # csas.csl copied from "csasdown"
 # other outputs: pdf_document, ioslides_presentation, powerpoint_presentation
 # To convert via pandoc (with a style template .. odt and docx): 
-#   pandoc -t docx snowcrab_update.rmd -o snowcrab_update.docx --reference-doc=SRR-RS2021-eng.docx
+#   pandoc -t docx snowcrab_sar.rmd -o snowcrab_sar.docx --reference-doc=SRR-RS2021-eng.docx
 # To create from within R
 #   setwd("location_of_this_file.rmd")
-#   rmarkdown::render("snowcrab_update.rmd", output_dir="tmp", params=list(year.assessment=2021, region="ESS") )
+#   rmarkdown::render("snowcrab_sar.rmd", output_dir="tmp", params=list(year.assessment=2021) )
 params:
   year.assessment: 2020
   working_directory: "/home/jae/projects/snowcrab_sar/"
