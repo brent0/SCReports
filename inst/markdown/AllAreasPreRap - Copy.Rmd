@@ -1,0 +1,483 @@
+---
+title: "Science / Indusrty Meeting"
+subtitle: "Scotian Shelf Snow Crab"
+author: "Snow Crab Unit"
+date: "2021"
+output: 
+  beamer_presentation:
+    theme: "Boadilla"
+    colortheme: "dolphin"
+    slide_level: 3
+    keep_tex: yes
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+options(dplyr.summarise.inform = FALSE)
+library(ggplot2)
+library(ggforce)
+library(tidyr)
+library(data.table)
+library(scales)
+library(knitr) 
+library(ggrepel) 
+library(tidyverse) 
+
+library(kableExtra)
+
+year = 2021
+wd = file.path(bio.datadirectory, "bio.snowcrab", "reports", year, "JanuaryMeetings", "fishery")
+wd2 = file.path(bio.datadirectory, "bio.snowcrab", "reports", year, "JanuaryMeetings", "acoustic")
+```
+
+---
+
+### Overview
+
+
+# Commercial Fishery
+
+---
+
+### Landings 
+
+```{r Table 1, include=TRUE, fig.cap="Landings"}
+knitr::include_graphics(file.path(wd, "landing_data_Tac.pdf"))
+
+#create table with Area, Year, TAC, Landings, Catch Rate (lbs/trap) for NENS, cfa23, cfa 24 for last 3 years
+```
+
+---
+
+### Weekly Landings 
+
+```{r figure 1, out.width="65%", fig.align="center", fig.pos = "t"}
+knitr::include_graphics(file.path(wd, "CFA24_weekly_landing.pdf"))
+```
+
+---
+
+### Spring Landings
+```{r figure 2, out.width="65%", fig.align="center", fig.pos = "t"}
+knitr::include_graphics(file.path(wd, "percent_spring_landings.pdf"))
+```
+
+---
+
+### Vessels Active by Year
+
+```{r figure 3, out.width="65%", fig.align="center", fig.pos = "t"}
+knitr::include_graphics(file.path(wd, "vessels_per_year.pdf"))
+```
+
+---
+
+### Annual Catch Rates
+```{r figure 4, out.width="70%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "annual_cpue_kg.pdf"))
+```
+
+---
+
+### Weekly CPUE
+```{r figure 5, out.width="90%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "weekly_cpue_smoothed2.pdf"))
+```
+
+---
+
+### Catch Rate Locations
+```{r figure 6, out.width="90%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "logbook", "snowcrab", "annual", "cpue", paste("cpue.", year, ".png", sep = "")))
+```
+
+---
+ 
+### Crab Size
+```{r figure 7, out.width="65%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "mean_cw_observed.pdf"))
+```
+
+---
+
+### Crab Size
+```{r figure 8, out.width="65%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "cw_vs_mass.pdf"))
+```
+
+---
+
+### Crab Size
+```{r figure 9, out.width="65%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "mean_weight_observed.pdf"))
+```
+
+---
+
+```{r figure 10, out.width="85%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "cfa24zoom_past_two_years_fishing_positions.pdf"))
+```
+
+---
+
+### Seasonal Fishing Patterns
+
+::: columns
+::: column
+
+```{r figure 11, out.width="100%", fig.align="left"}
+knitr::include_graphics(file.path(wd, "cfa24zoom_spring_fishing_positions.pdf"))
+```
+:::
+
+::: column
+
+```{r figure 12, out.width="100%", fig.align="left"}
+knitr::include_graphics(file.path(wd, "cfa24zoom_summer_fishing_positions.pdf"))
+```
+:::
+:::
+
+
+# At-Sea Observer
+
+---
+
+### At-Sea Observer Coverage
+```{r figure 13, out.width="90%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "observersummary2.pdf"))
+```
+
+---
+
+### Catch Composition
+
+::: columns
+::: column
+
+```{r figure 14, out.width="105%", fig.align="center"}
+knitr::include_graphics(file.path(wd, paste(year-1, "_S-ENS_size_freq.pdf", sep = "")))
+```
+:::
+
+::: column
+```{r figure 15, out.width="105%", fig.align="center"}
+knitr::include_graphics(file.path(wd, paste(year, "_S-ENS_size_freq.pdf", sep = "")))
+```
+:::
+:::
+---
+
+### Catch Composition
+
+::: columns
+::: column
+
+```{r figure 16, out.width="105%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "S-ENS_Spring_size_freq.pdf"))
+```
+:::
+
+::: column
+```{r figure 17, out.width="105%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "S-ENS_Summer_size_freq.pdf"))
+```
+:::
+:::
+---
+
+### Softshell Catches
+
+```{r figure 18, out.width="90%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "softsummary2.pdf"))
+```
+--- 
+
+### Softshell Catches
+
+```{r figure 19, out.width="70%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "soft_crab_by_month.pdf"))
+```
+--- 
+
+### Softshell Catches
+
+```{r figure 20, out.width="65%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "cfa24_soft_crab_positions_68.pdf"))
+```
+
+
+# Survey
+
+
+```{r figure 21, out.width="105%", fig.align="center"}
+knitr::include_graphics(file.path(wd, "All_Survey_Stations.pdf"))
+```
+--- 
+
+### Female Crab
+
+```{r figure 22, out.width="50%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "assessments", year, "figures", "size.freq", "survey", "female.pdf"))
+```
+--- 
+
+### Mature Female Distribution
+
+::: columns
+::: column
+
+
+```{r figure 23, out.width="100%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "totmass.female.mat", paste("totmass.female.mat.", year-1, ".png", sep = "")))
+```
+:::
+
+::: column
+
+```{r figure 24, out.width="100%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "totmass.female.mat", paste("totmass.female.mat.", year, ".png", sep = "")))
+```
+:::
+:::
+
+Units: mt/km2
+
+
+--- 
+
+### Male Crab
+
+```{r figure 25, out.width="50%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "assessments", year, "figures", "size.freq", "survey", "male.pdf"))
+```
+
+--- 
+
+### Commercial Male Distribution
+
+::: columns
+::: column
+
+```{r figure 26, out.width="100%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "R0.mass", paste("R0.mass.", year-1, ".png", sep = "")))
+```
+
+:::
+
+::: column
+
+```{r figure 27, out.width="100%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "R0.mass", paste("R0.mass.", year, ".png", sep = "")))
+```
+:::
+:::
+
+Units: mt/km2
+
+--- 
+
+### Predation
+
+::: columns
+::: column
+
+```{r figure 28, out.width="100%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "assessments", year, "timeseries", "survey", "ms.mass.10.pdf"))
+```
+:::
+
+::: column
+```{r figure 29, out.width="85%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "bycatch", "ms.mass.10", paste("ms.mass.10.", year-1, ".png", sep = "")))
+```
+
+```{r figure 30, out.width="85%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "bycatch", "ms.mass.10", paste("ms.mass.10.", year, ".png", sep = "")))
+```
+:::
+:::
+--- 
+
+### Predation
+
+:::: columns
+::: column
+
+```{r figure 31, out.width="100%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "assessments", year, "timeseries", "survey", "ms.mass.201.pdf"))
+```
+:::
+
+::: column
+```{r figure 32, out.width="85%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "bycatch", "ms.mass.201", paste("ms.mass.201.", year-1, ".png", sep = "")))
+```
+
+```{r figure 33, out.width="85%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "bycatch", "ms.mass.201", paste("ms.mass.201.", year, ".png", sep = "")))
+```
+:::
+:::
+--- 
+
+### Coexistent Species
+::: columns
+::: column
+
+```{r figure 34, out.width="100%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "assessments", year, "timeseries", "survey", "ms.mass.2211.pdf"))
+```
+:::
+
+::: column
+```{r figure 35, out.width="85%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "bycatch", "ms.mass.2211", paste("ms.mass.2211.", year-1, ".png", sep = "")))
+```
+
+```{r figure 36, out.width="85%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "bycatch", "ms.mass.2211", paste("ms.mass.2211.", year, ".png", sep = "")))
+```
+:::
+:::
+--- 
+
+### Temperatures
+
+```{r figure 37, out.width="70%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "assessments", year, "timeseries", "survey", "t.pdf"))
+```
+--- 
+
+### Temperatures
+
+::: columns
+::: column
+```{r figure 38, out.width="100%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "t", paste("t.", year-1, ".png", sep = "")))
+```
+:::
+
+::: column
+
+```{r figure 39, out.width="100%", fig.align="center"}
+knitr::include_graphics(file.path("C:", "bio.data", "bio.snowcrab", "output", "maps", "survey", "snowcrab", "annual", "t", paste("t.", year, ".png", sep = "")))
+```
+
+:::
+:::
+
+
+# St Anns Bank Acoustic Receivers
+
+### Acoustic Receivers
+
+::: columns
+::: column
+
+-   Collaborative project since 2015
+
+-   Two lines of 23 acoustic receivers within the MPA
+
+-   Detect animals we tag (snow crab, cod, etc) as well as other
+    projects from along the eastern seaboard
+:::
+
+::: column
+```{r figure 40, out.width="100%", fig.align="center"}
+knitr::include_graphics(file.path(wd2, "V2LSCF.receiver.line.locations.pdf"))
+```
+
+:::
+:::
+
+---
+
+### Detections
+```{r figure 41, out.width="80%", fig.align="center"}
+knitr::include_graphics(file.path(wd2, "V2LSCF.detected.projects.map.pdf"))
+```
+
+--- 
+
+### Detections
+```{r figure 42, out.width="80%", fig.align="center"}
+knitr::include_graphics(file.path(wd2, "V2LSCF.species.pie.chart.pdf"))
+```
+
+--- 
+
+### Detections
+```{r figure 43, out.width="110%", fig.align="center"}
+knitr::include_graphics(file.path(wd2, "V2LSCF.species.by.month.pdf"))
+```
+
+--- 
+
+### Temperatures
+```{r figure 44, out.width="110%", fig.align="center"}
+knitr::include_graphics(file.path(wd2, "V2LSCF.temperature.pdf"))
+```
+
+
+
+# DFO Business
+
+### Current Collaborative Agreement (CA)
+
+::: block
+-   2020/20 is the final of a five year CA
+
+-   Funds remaining at the end of the year (April 1, 2020) will be
+    returned to participants
+
+-   \% of each license recalculates annually based on previous season's
+    quota
+
+-   Working on a new 5 year CA.
+
+-   Will still be a \"Use of Fish\" approach with science quota
+
+-   Please DO NOT send payment until invoice is received, not just CA
+    for signature
+:::
+
+---
+
+### Collaborative Agreement (CA)
+
+```{r figure 45, out.width="110%", fig.align="center"}
+knitr::include_graphics(file.path(bio.datadirectory, "bio.snowcrab", "reports", year, "JanuaryMeetings", "business", "Spending.Breakdown.pdf"))
+```
+ 
+---
+ 
+### Meeting and Document Schedule
+
+::: block
+-   Current:
+
+    -   Industry Meetings (Jan), RAP (late Feb), AC Meetings (early
+        March)
+
+    -   Framework preceding RAP this year.
+
+    -   Preliminary report, Res Doc ( 150 pages), SAR (30 pages)
+
+-   Future:
+
+    -   In-house review of assessment (mid Feb), Industry Meetings (late
+        Feb), AC Meetings (March)
+
+    -   Preliminary report, Stock update (30 pages)
+
+    -   Full RAP, Res Doc every 3 years
+:::
+
+---
+
+::: frame
+The End
+:::

@@ -21,6 +21,7 @@ January.industry.meeting.data = function (current_year) {
   obs = ROracle::dbGetQuery(con, ("SELECT * FROM SNCRABSETS_OBS"))
   setsobs=ROracle::dbGetQuery(con, ("SELECT * FROM SNCRABSETS_OBS, SNCRABDETAILS_OBS 
   WHERE SNCRABDETAILS_OBS.TRIP_ID = SNCRABSETS_OBS.TRIP_ID AND SNCRABDETAILS_OBS.SET_NO = SNCRABSETS_OBS.SET_NO"))
+  
   lfobsquery=ROracle::dbGetQuery(con, ("SELECT SNCRABDETAILS_OBS.TRIP_ID, SNCRABDETAILS_OBS.TRIP,
     SNCRABDETAILS_OBS.BOARD_DATE, SNCRABSETS_OBS.PRODCD_ID, SNCRABDETAILS_OBS.SET_NO,
                               SNCRABDETAILS_OBS.FISH_NO, SNCRABDETAILS_OBS.SEXCD_ID,
@@ -164,7 +165,7 @@ January.industry.meeting.data = function (current_year) {
   #logs$area[logs$cfa0=="cfa24"]="S-ENS"
   
   tables<-logs %>%
-    group_by(cfa, year) %>%
+    group_by(cfa0, year) %>%
     summarise(landings = sum(pro_rated_slip_wt_lbs), effort = sum(num_of_traps))
   
   write.table(tables,file=file.path(wd, "tables.csv"), sep=",")
@@ -261,7 +262,7 @@ January.industry.meeting.data = function (current_year) {
   crablandings$mt=crablandings$totallandings/2204.626
   crablandings$year=median(as.numeric(landings$year))
   
-  write.table(crablandings,file=file.path(wd, "Landings by Week"), sep=",")
+  write.table(crablandings,file=file.path(wd, "Landings by Week.csv"), sep=",")
   
   
   #Create a plots showing landings by week for each area
@@ -338,6 +339,7 @@ January.industry.meeting.data = function (current_year) {
   filename=paste(iy, "_percent_spring_landings", ".emf", sep="")
   emf(file=file.path(wd, filename), bg="white")
   cf=unique(spring$cfa)
+  cf = cf[order(cf)]
   cols=c("blue", "red", "black", "green4")
   point=c(1,2,4,3)
 
@@ -365,6 +367,7 @@ January.industry.meeting.data = function (current_year) {
   pdf(file=file.path(wd, filename))
   par(mar = c(5, 4, 1, 1))
   cf=unique(spring$cfa)
+  cf = cf[order(cf)]
   cols=c("blue", "red","black","green4")
   point=c(1,2,4,15)
 
@@ -1805,6 +1808,26 @@ makemap(a, area="all", title=paste(iy, "Snow Crab Survey", sep=" "))
   dev.off()
   print(paste(filename, " created", sep=""))
   
+  
+  planned = read.csv(file.path("S:", "Survey", "Annual Files by Year", "ENS Snow Crab 2021 Survey", "2021_Survey_Stations.csv"))
+  notcomplete = planned[which(!as.numeric(planned$Station) %in% as.numeric(a$station)),]
+  notcomplete$X = notcomplete$Long.Start
+  notcomplete$Y = notcomplete$Lat.Start
+  notcomplete$EID=1:nrow(notcomplete)
+  notcomplete=as.EventData(notcomplete, projection="LL")
+  
+  filename="All_survey_stations_plus_fail.pdf"
+  
+  pdf(file=file.path(wd, filename), width = 9)
+  makemap(a, area="all", title=paste(iy, "Planned Snow Crab Survey", sep=" "))
+  addPoints(data=a, col="black", pch=20, cex=.6)
+  addPoints(data=notcomplete, col="red", pch=20, cex=.6)
+  
+  dev.off()
+  print(paste(filename, " created", sep=""))
+  
+  
+  
   #addition for catch rate table for presentation
   
   logs.fixed2 = cleanlogscr
@@ -1914,7 +1937,7 @@ aland=function(x){
     points(x=c$year, y=c$cpuekg, col=cols[y], pch=point[y])
     
   }
-  legend("topleft",paste(cf), bty="n", col=cols, pch=point, lty=1)
+  legend("topleft",paste(cf), bty="n", col=cols, lwd=2, pch=point, lty=1)
   #legend("topleft",paste(cf), bty="n", col=cols, lty=1)
   
 }
@@ -1930,30 +1953,46 @@ compute.catchrate.quarter = function (x, var, index) {
   return(res) }
 
 smoothcatch=function(x, pst){
-  cf=unique(x$area)
-  non4x=x[x$area %in% c("CFA 23", "CFA 24", "N-ENS"),]
-  fc=unique(non4x$area)
   
-  cols=c("blue","red", "green4", "black")
-  point=c(16, 17, 8, 15)
+  cols=c("black", "blue","red", "green4" )
+  icon = c(4, 1, 2, 0)
+  x$yeargroup = x$year
+  x$yeargroup[which(x$area == "4X" & x$week < 6 )] = as.numeric(x$year[which(x$area == "4X" & x$week < 6 )])-1
+  ggplot(x, aes(time, cpuekg, colour=area, shape = area,
+                group=interaction(yeargroup, area))) + 
+    geom_point(size = 1, stroke = .5) + geom_line(size = .5) + xlab("Week") + ylab("Catch Rate (kg/ trap)") + 
+    scale_color_manual(values = cols) + scale_shape_manual(values=icon) + 
+    theme_bw() + 
+    theme(legend.title = element_blank(), legend.position = c(0.95, 0.9),legend.key = element_rect(colour = NA, fill = NA),)
+  
+  
+  
+  #cf=unique(x$area)
+  #cf = cf[order(cf)]
+  #non4x=x[x$area %in% c("CFA 23", "CFA 24", "N-ENS"),]
+#  fc=unique(non4x$area)
+  
+ # cols=c("black", "blue","red", "green4" )
+  #point=c(8, 16, 17, 15)
 
-  plot(x$time,x$cpuekg , type="n", ylab="Catch Rate (kg/ trap)",
-       xlab="Week", ylim=c(0,(max(x$cpuekg))), xaxp=c(min(as.numeric(pst)), max(as.numeric(pst)), 2))
-  legend("topright",paste(cf), bty="n", col=cols, pch=point)
+#  plot(x$time,x$cpuekg , type="n", ylab="Catch Rate (kg/ trap)",
+#       xlab="Week", ylim=c(0,(max(x$cpuekg))), xaxp=c(min(as.numeric(pst)), max(as.numeric(pst)), 2))
+#  legend("topright",paste(cf), bty="n", col=cols, pch=point)
  
-  for (y in 1:length(cf)) {
-    c=x[x$area==cf[y],]
-    c=c[order(c$time),]
-    c=c[c$run_lbs>quantile(c$run_lbs,.05),]
-    points(x=c$time, y=c$cpuekg, col=cols[y], pch=point[y], cex=0.6)
-    for (y in 1:length(fc) )
-    {for (p in pst){
-      c=x[x$area==fc[y],]
-      c=c[order(c$time),]
-      c=c[c$run_lbs>quantile(c$run_lbs,.05),]
-      this=c[c$year==p,]
-      lines(x=this$time, y=this$cpuekg, col=cols[y], cex=0.6)
-    }}}
+ ## for (y in 1:length(cf)) {
+  ##  c=x[x$area==cf[y],]
+  #  c=c[order(c$time),]
+  #  c=c[c$run_lbs>quantile(c$run_lbs,.05),]
+  #  points(x=c$time, y=c$cpuekg, col=cols[y], pch=point[y], cex=0.6)
+  #  for (y in 1:length(cf) )
+  #  {for (p in pst){
+  #    c=x[x$area==cf[y],]
+  #    c=c[order(c$time),]
+  #    c=c[c$run_lbs>quantile(c$run_lbs,.05),]
+  #    this=c[c$year==p,]
+  #    if(x$area)
+  #    lines(x=this$time, y=this$cpuekg, col=cols[y], cex=0.6)
+  #  }}}
 
   }
 
