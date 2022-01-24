@@ -24,9 +24,12 @@ params:
 
   if (0) {
     # To create the msword document from within R run this:
-    setwd( project.codedirectory("SCReports", "inst", "SAR" ) )  # change to where the rmd file lives
-    rmarkdown::render( "snowcrab_sar.rmd", params=list(year.assessment=2020, bio.data.dir=data_root ),  output_dir=work_root )
-    system( paste( "/usr/bin/libreoffice -o", file.path( work_root, "snowcrab_sar.docx") ) )
+    setwd( file.path( project.codedirectory("SCReports"), "inst", "SAR" ) )  # change to where the rmd file lives
+    rmarkdown::render( "snowcrab_sar.rmd", 
+      params=list(year.assessment=2020, bio.data.dir=data_root ),  
+      output_dir=work_root 
+    )
+    # system( paste( "/usr/bin/libreoffice -o", file.path( work_root, "snowcrab_sar.docx") ) )
   }
 
   require(knitr)
