@@ -354,13 +354,24 @@ Increasing predation lowers both the abundance and reproductive potential of Sno
 
 
 ```{r, out.width=480 }
-  include_graphics( file.path( SCD, "assessments", year.assessment, "external_media", "halibut_biomass_timeseries.png") )
+  fn = file.path( SCD, "assessments", year.assessment, "timeseries", "survey", "ms.mass.30.pdf")
+  if ( file.exists(fn) ) {
+    include_graphics( fn )
+  } else {
+    warning( fn, "was not found" )
+  }
 ```
  
 *Figure 12. Atlantic Halibut biomass for the Scotian Shelf and Southern Grand Banks from the Halibut stock assessment model (black lines) and the Halibut survey (blue circles). The solid black line is total biomass, the dashed line is legal biomass, and the dotted line is spawning stock biomass. The solid red bar is the current 3-year mean of the Halibut survey biomass index.*
 
 ```{r, out.width=480 }
-  include_graphics( file.path( SCD, "assessments", year.assessment, "external_media", "thorny_skate_biomass_timeseries.png") )
+  fn = file.path( SCD, "assessments", year.assessment, "timeseries", "survey", "ms.mass.201.pdf")
+  if ( file.exists(fn) ) {
+    include_graphics( fn )
+  } else {
+    warning( fn, "was not found" )
+  }
+
 ```
  
 *Figure 13. Thorny Skate biomass trend from annual Snow Crab survey. Horizontal lines indicate the long-term median within each  subarea. Error bars are 95% Confidence Intervals estimated by bootstrapping.*   
@@ -435,7 +446,8 @@ The operational Target Removal Reference (TRR) changes depending upon the "zone"
 \
 
 ```{r, out.width=480 }
-  include_graphics( file.path( SCD, "assessments", year.assessment, "external_media", "harvest_control_rules.png") )
+  loc = file.path( project.codedirectory("SCReports"), "inst", "SAR", "media" )
+  include_graphics( file.path( loc, "harvest_control_rules.png") )
 ```
 
 *Figure 14. Harvest control rules for the Scotian Shelf Snow Crab fisheries.*
@@ -487,7 +499,11 @@ The estimates of FMSY {and 95% CI} are:
   loc = file.path( SCD, "modelled", "tesselation", "predicted.biomass.densitites" )
   fn1 = file.path( loc, paste( "biomass", year_previous, "png", sep=".") )
   fn2 = file.path( loc, paste( "biomass", (year.assessment  ), "png", sep=".") )
-  include_graphics( c(fn1, fn2) )
+  toplot = NULL
+  if (file.exists(fn1) ) toplot = c(toplot, fn1) 
+  if (file.exists(fn2) ) toplot = c(toplot, fn2) 
+  include_graphics( toplot )
+
 ```
 
 *Map 3. Fishable biomass densities ($t/\text{km}^2$) from the Snow Crab survey. Original figure in colour.* 
