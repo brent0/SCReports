@@ -88,6 +88,29 @@ params:
   tac_sens = FD$TAC[which(FD$yr==year.assessment & FD$region=="cfasouth")]
   tac_4x = FD$TAC[which(FD$yr==year.assessment & FD$region=="cfa4x")] # 4x is refered by start year
   tac_4x_p = FD$TAC[which(FD$yr==year_previous & FD$region=="cfa4x")] # 4x is refered by start year
+
+
+  # carapace condition .. could have used the stuff in 02_fisures and table but it was convoluted
+  # should replace that mess with this eventually 
+  male = 0
+  odb = observer.db("odb")
+  setDT(odb)
+  odb = odb[ which( odb$sex==male & odb$cw >= 95 & odb$cw < 170 & odb$prodcd_id=="0" & is.finite(odb$shell) ) ,]  # commerical sized crab only
+  odb$region = NA
+  for ( reg in c("cfanorth", "cfasouth", "cfa4x")) {
+    r = polygon_inside(x=odb, region=aegis.polygons::polygon_internal_code(reg), planar=FALSE)
+    if (length(r)> 0)  odb$region[r] = reg
+  }
+  CC = odb[ !is.na(odb$region), .N, by=.(region, fishyr, shell) ]
+  CC[, total:=sum(N, na.rm=TRUE), by=.(region, fishyr)]
+  CC$percent = round(CC$N / CC$total, 2) * 100
+  cc_soft_nens = CC[region=="cfanorth" & fishyr==year.assessment & shell %in% c(1,2), sum(percent)]
+  cc_soft_sens = CC[region=="cfasouth" & fishyr==year.assessment & shell %in% c(1,2), sum(percent)]
+  cc_soft_4x = CC[region=="cfa4x" & fishyr==year.assessment & shell %in% c(1,2), sum(percent)]
+  cc_soft_nens_p = CC[region=="cfanorth" & fishyr==year_previous & shell %in% c(1,2), sum(percent)]
+  cc_soft_sens_p = CC[region=="cfasouth" & fishyr==year_previous & shell %in% c(1,2), sum(percent)]
+  cc_soft_4x_p = CC[region=="cfa4x" & fishyr==year_previous & shell %in% c(1,2), sum(percent)]
+
 ```
 
 
@@ -112,20 +135,18 @@ params:
 
 - Landings (t) in `r year.assessment` were `r l_nens` in N-ENS, `r l_sens` in S-ENS and `r l_4x` in CFA 4X, respectively, representing a change of `r dt_l_nens` %, `r dt_l_sens` % and `r dt_l_4x` % (incomplete season), respectively, relative to `r year_previous`. Total Allowable Catches (TAC) were `r tac_nens` t, `r tac_sens` t and `r tac_4x`, respectively. 
 
-- Non-standardized catch rates (kg/trap haul) in `r year.assessment` were `r c_nens` in N-ENS, `r c_sens` in S-ENS and `r c_4x` in CFA 4X. Relative to `r year_previous`, this represents a change of `r dt_c_nens` %, `r dt_c_sens` % and `r dt_c_4x` % (incomplete season).
+- Non-standardized catch rates (kg/trap haul) in `r year.assessment` were `r c_nens` in N-ENS, `r c_sens` in S-ENS and `r c_4x` in CFA 4X. Relative to `r year_previous`, this represents a change of `r dt_c_nens`%, `r dt_c_sens`% and `r dt_c_4x`% (incomplete season).
 
-- Commercial catches of soft-shelled (newly moulted) Snow Crab were 5% in N-ENS and 2% in S ENS for the `r year.assessment` season. This is a decrease from 25% in N-ENS and is consistent in S‑ENS from the previous season. Higher soft-shell catches for N-ENS were almost exclusively from the summer fishery.
+- Commercial catches of soft-shelled (newly moulted) Snow Crab were `r cc_soft_nens`% in N-ENS, `r cc_soft_sens`% in S ENS and `r cc_soft_4x`% in CFA 4X (incomplete season) for `r year.assessment`. In `r year_previous`, it was `r cc_soft_nens_p`%, `r cc_soft_sens_p`% and `r cc_soft_4x_p`%, respectively. Higher soft-shell handling results in higher unnecessary mortality.
 
 - The modelled, post-fishery, fishable biomass of Snow Crab in N-ENS was estimated to be 4,460 t, relative to 3,299 t in `r year_previous`. In S-ENS, the post-fishery, fishable biomass index was 54,408 t, relative to 44,705 t in `r year_previous`. In 4X, the fishable biomass was 418 t, relative to 428 t in `r year_previous`.
 
 - Substantial recruitment of female Snow Crab into the mature (egg-bearing) segment of the population occurred from 2016-2018 and egg/larval production is expected to be high, though decreasing, as the numeric densities of mature female Snow Crab are now declining.
 
-- Bycatch of non-target species is extremely low (\<0.4%) in all Snow Crab fishing areas.
+- Bycatch of non-target species is extremely low (<0.4%) in all Snow Crab fishing areas.
 
 - Based on stomach sampling, Atlantic Halibut, Atlantic Wolffish, Thorny Skate, and other skate species appear to be the predominant predators of Snow Crab on the Scotian Shelf. Increased Halibut biomass lowers both the abundance and reproductive potential of Snow Crab on the Scotian Shelf.
-
-- A reference points-based Precautionary Approach has been implemented in this fishery. The Limit Reference Point is 25% of carrying capacity and the Upper Stock Reference is 50% of carrying capacity. The Target Removal Reference is 20% of the fishable biomass in each area, and the Removal Reference is not to exceed fishing mortality at Maximum Sustainable Yield. Various secondary (population and ecosystem) indicators are taken into consideration for management decisions.
-
+ 
 - In N-ENS, minor TAC decreases for the past two seasons and increased recruitment to the fishery have helped catch rates and fishable biomass estimates to rebound. N-ENS has moved from the cautious zone in `r year_previous` to the healthy zone in `r year.assessment`. Given stock status and incoming recruitment, catch levels similar to those in 2017 and 2018 would help to maintain recent exploitation levels.
 
 - In S-ENS, substantial TAC reductions from 2016-2018 helped maintain stable fishery performance (catch rates) in spite of reduced recruitment, increased predation, and falling fishable biomass estimates throughout that time. Increased recruitment to the fishery is likely for the upcoming season. Exploitation rates derived from the fishery model have been declining in recent years. An increase in catch levels would help to maintain recent exploitation levels.
@@ -203,12 +224,11 @@ Non-standardized catch rates in `r year.assessment` were `r c_nens` kg/trap haul
 
 Carapace Condition (CC) defines the approximate age (since terminal moult) of the terminally moulted crab based on the relative development and subsequent decay of the carapace. CC1 signifies a newly moulted crab, soft-shelled, with no epibiont (e.g., barnacles) growth. CC2 has begun to harden, but is still considered to be soft and of no commercial value. CC3 and CC4 represent ideal commercial crab. The oldest carapace condition (CC5) signifies extensive shell decay with no expectation of survival into the next year.
 
+- Commercial catches of soft-shelled (newly moulted) Snow Crab were `r cc_soft_nens`% in N-ENS, `r cc_soft_sens`% in S ENS and `r cc_soft_4x`% in CFA 4X (incomplete season) for `r year.assessment`. In `r year_previous`, it was `r cc_soft_nens_p`%, `r cc_soft_sens_p`% and `r cc_soft_4x_p`%, respectively. Higher soft-shell handling results in higher unnecessary mortality.
+
+
 To update {
->In N-ENS, CC1 and CC2 crab collectively represented approximately 3% of the total catch, relative to 28% in 2018 (Figure 4). The relative decrease in CC2 was accompanied by a proportional increase in CC3. CC4 levels were consistent from the previous season. CC5 levels remain negligible. Observed CC1 and CC2 crab were caught mostly in the summer fishery in 2018 and 2019. The spring season (2008-present) was adopted to reduce fishing intensity in the summer season and to encourage fishing during the earlier period when newly moulted crab are too weak and soft to easily enter into traps. After a successful trial in 2008, the majority of landings (>60%) from N-ENS have been caught during the spring season. A larger percentage of the 2019 TAC was caught in the spring (compared to 2018) and soft crab levels lowered. The mean size of crabs caught in N-ENS had been increasing between 2008 and 2016, suggesting higher survival of immature crab (lack of handling mortality of soft-shelled crab) and a decreased dependence on newly recruited animals. This increasing mean size of crab in N-ENS had contributed to increased catch rates (on a kg/trap basis). The mean size of the commercial crab caught in N-ENS has decreased the last three seasons and is likely evidence of the leading edge of a recruitment pulse entering the fishery, following a period of little or no recruitment.
-
->In S-ENS, the occurrence of CC1 crab remains low, at \<1% (Figure 4). The proportion of CC2 crab in the catch has remained constant since 2017, at approximately 6%. CC3 dominated the catch (approximately 63%). CC4 incidence rose to 31% from 8% in 2018.
-
->Senescent (CC5) crab represented less than 1% of the total observed catch and survey catches in all areas.
+>In N-ENS, CC1 and CC2 crab represented `r cc_soft_nens`% of the observed catch, relative to `r cc_soft_nens_p`% in `r year_previous` (Figure 4).  CC5 levels remain negligible. In S-ENS, the occurrence of CC1 and CC2 crab was `r cc_soft_sens`% relative to `r cc_soft_sens_p`% in `r year_previous` (Figure 4).Senescent (CC5) crab represented less than 1% of the total observed catch and survey catches in all areas.
 
 >In N-ENS, the estimated soft-shell crab discard rate (percentage of total landings as determined by at-sea observer sampling) was 5% in 2019, a decrease from 25% in 2018 (the highest level in 10 years). In S-ENS, the 2019 estimated soft-shell discards were 2% of landings, and is consistent with the 2018 estimate. Soft-shelled discards are generally negligible in 4X, due to season timing. Maximizing spring fishing efforts will limit this source of Snow Crab mortality, that is incidental to the fishery removals.
 }
