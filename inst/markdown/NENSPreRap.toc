@@ -1,5 +1,0 @@
-\beamer@sectionintoc {1}{Commercial Fishery}{3}{0}{1}
-\beamer@sectionintoc {2}{At-Sea Observer}{16}{0}{2}
-\beamer@sectionintoc {3}{Survey}{23}{0}{3}
-\beamer@sectionintoc {4}{St Anns Bank Acoustic Receivers}{34}{0}{4}
-\beamer@sectionintoc {5}{DFO Business}{40}{0}{5}

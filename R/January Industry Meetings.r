@@ -1,11 +1,11 @@
 par.old = par()$mar
 #NOTE:  This script has been modified on the fly to create tables..will need to be cleaned up for January meetings
 January.industry.meeting.data = function (current_year) {
-
+  
   if(!exists("current_year"))  current_year = year(now())
-
+  
   #Create a folder to store all figures and tables
-  wd=file.path(bio.datadirectory, "bio.snowcrab", "reports", current_year, "JanuaryMeetings", "fishery") 
+  wd=file.path(data_root, "bio.snowcrab", "reports", current_year, "JanuaryMeetings", "fishery") 
   if(!dir.exists(wd))dir.create(wd, recursive = T)
   #  setwd(q)
   print(paste("All figures will be stored at: ",wd))
@@ -13,16 +13,19 @@ January.industry.meeting.data = function (current_year) {
   
   #Only do grab database refresh if more than 24 hours since last query.
   rawfile=file.path(wd, paste("logbook.",current_year,".rdata", sep=""))
-  if(lubridate::hour(lubridate::as.period(lubridate::now() - file.info(rawfile)$mtime) ) > 24){
+  update = F
+  if(!file.exists(rawfile)) update = T
+  if(!update)if(lubridate::hour(lubridate::as.period(lubridate::now() - file.info(rawfile)$mtime) ) > 24) update = T
+  if(update){
     
-  con= ROracle::dbConnect(DBI::dbDriver("Oracle"), oracle.username, oracle.password, oracle.server)
-  logbook= ROracle::dbGetQuery(con, " SELECT * FROM MARFISSCI.MARFIS_CRAB MARFIS_CRAB WHERE (MARFIS_CRAB.TARGET_SPC=705)")
-  lic = ROracle::dbGetQuery(con, "select * from MARFISSCI.LICENCE_AREAS")
-  obs = ROracle::dbGetQuery(con, ("SELECT * FROM SNCRABSETS_OBS"))
-  setsobs=ROracle::dbGetQuery(con, ("SELECT * FROM SNCRABSETS_OBS, SNCRABDETAILS_OBS 
+    con= ROracle::dbConnect(DBI::dbDriver("Oracle"), oracle.username, oracle.password, oracle.server)
+    logbook= ROracle::dbGetQuery(con, " SELECT * FROM MARFISSCI.MARFIS_CRAB MARFIS_CRAB WHERE (MARFIS_CRAB.TARGET_SPC=705)")
+    lic = ROracle::dbGetQuery(con, "select * from MARFISSCI.LICENCE_AREAS")
+    obs = ROracle::dbGetQuery(con, ("SELECT * FROM SNCRABSETS_OBS"))
+    setsobs=ROracle::dbGetQuery(con, ("SELECT * FROM SNCRABSETS_OBS, SNCRABDETAILS_OBS 
   WHERE SNCRABDETAILS_OBS.TRIP_ID = SNCRABSETS_OBS.TRIP_ID AND SNCRABDETAILS_OBS.SET_NO = SNCRABSETS_OBS.SET_NO"))
-  
-  lfobsquery=ROracle::dbGetQuery(con, ("SELECT SNCRABDETAILS_OBS.TRIP_ID, SNCRABDETAILS_OBS.TRIP,
+    
+    lfobsquery=ROracle::dbGetQuery(con, ("SELECT SNCRABDETAILS_OBS.TRIP_ID, SNCRABDETAILS_OBS.TRIP,
     SNCRABDETAILS_OBS.BOARD_DATE, SNCRABSETS_OBS.PRODCD_ID, SNCRABDETAILS_OBS.SET_NO,
                               SNCRABDETAILS_OBS.FISH_NO, SNCRABDETAILS_OBS.SEXCD_ID,
                               SNCRABDETAILS_OBS.FISH_LENGTH,
@@ -34,19 +37,19 @@ January.industry.meeting.data = function (current_year) {
                               SNOWCRAB.SNCRABSETS_OBS SNCRABSETS_OBS WHERE SNCRABDETAILS_OBS.TRIP_ID = SNCRABSETS_OBS.TRIP_ID AND
                               SNCRABDETAILS_OBS.SET_NO = SNCRABSETS_OBS.SET_NO AND
                               (SNCRABDETAILS_OBS.FISH_NO Is Not Null) AND (SNCRABDETAILS_OBS.SHELLCOND_CD Is Not Null)"))
-  
-  all=ROracle::dbGetQuery(con, ("SELECT * FROM SNOWCRAB.SNCRABSETS SNCRABSETS WHERE (SNCRABSETS.HAULCCD_ID=1)"))
-  
-  
-  names(logbook) = tolower( names(logbook) )
-  names(lic) = tolower( names(lic) )
-  
-  save(logbook, file=file.path(wd, paste("logbook.",current_year,".rdata", sep="")), compress=T)
-  save(lic, file=file.path(wd, paste("lic.",current_year,".rdata", sep="")), compress=T)
-  save(obs, file=file.path(wd, paste("obs.",current_year,".rdata", sep="")), compress=T)
-  save(setsobs, file=file.path(wd, paste("setsobs.",current_year,".rdata", sep="")), compress=T)
-  save(lfobsquery, file=file.path(wd, paste("lfobsquery.",current_year,".rdata", sep="")), compress=T)
-  save(all, file=file.path(wd, paste("all.",current_year,".rdata", sep="")), compress=T)
+    
+    all=ROracle::dbGetQuery(con, ("SELECT * FROM SNOWCRAB.SNCRABSETS SNCRABSETS WHERE (SNCRABSETS.HAULCCD_ID=1)"))
+    
+    
+    names(logbook) = tolower( names(logbook) )
+    names(lic) = tolower( names(lic) )
+    
+    save(logbook, file=file.path(wd, paste("logbook.",current_year,".rdata", sep="")), compress=T)
+    save(lic, file=file.path(wd, paste("lic.",current_year,".rdata", sep="")), compress=T)
+    save(obs, file=file.path(wd, paste("obs.",current_year,".rdata", sep="")), compress=T)
+    save(setsobs, file=file.path(wd, paste("setsobs.",current_year,".rdata", sep="")), compress=T)
+    save(lfobsquery, file=file.path(wd, paste("lfobsquery.",current_year,".rdata", sep="")), compress=T)
+    save(all, file=file.path(wd, paste("all.",current_year,".rdata", sep="")), compress=T)
   }
   
   # load saved temporary files
@@ -56,17 +59,18 @@ January.industry.meeting.data = function (current_year) {
   load(file=file.path(wd, paste("setsobs.",current_year,".rdata", sep="")))
   load(file=file.path(wd, paste("lfobsquery.",current_year,".rdata", sep="")))
   load(file=file.path(wd, paste("all.",current_year,".rdata", sep="")))
-
-
+  
+  
   # State focus year
   #chooses most recent "full" year. Avoids being tripped up by a few 4X dates.
-  iy=max(logbook$year[which(logbook$cfa=="23")])
-  print(paste("The fishing season to be examined is: ",iy))
+  #iy=max(logbook$year[which(logbook$cfa=="23")])
+  # print(paste("The fishing season to be examined is: ",iy))
+  iy = current_year
   
   ######
   # Removed for 2015 due to NA's in database
   
-    ## manual pro-rate:
+  ## manual pro-rate:
   #
   #      # fix problems with slip weights
   #      new.slip.sums =  as.data.frame.table( tapply( X=logbook$slip_weight_lbs, INDEX=logbook$doc_id, FUN   = function(q) { sum(unique(q)) },  simplify = T ))
@@ -165,8 +169,8 @@ January.industry.meeting.data = function (current_year) {
   #logs$area[logs$cfa0=="cfa24"]="S-ENS"
   
   tables<-logs %>%
-    group_by(cfa0, year) %>%
-    summarise(landings = sum(pro_rated_slip_wt_lbs), effort = sum(num_of_traps))
+    dplyr::group_by(cfa0, year) %>%
+    dplyr::summarise(landings = sum(pro_rated_slip_wt_lbs), effort = sum(num_of_traps))
   
   write.table(tables,file=file.path(wd, "tables.csv"), sep=",")
   
@@ -342,11 +346,11 @@ January.industry.meeting.data = function (current_year) {
   cf = cf[order(cf)]
   cols=c("blue", "red", "black", "green4")
   point=c(1,2,4,3)
-
-
+  
+  
   plot(spring$year, spring$perc, type="n",
        ylab="Percent of Total", xlab="Year", ylim=c(0,100), lty=1, col="red", pch=19, bg="white")
-
+  
   for (y in 1:length(cf)) {
     sprc=spring[spring$cfa==cf[y],]
     lines(x=sprc$year, y=sprc$perc, col=cols[y], lwd=2 )
@@ -363,17 +367,17 @@ January.industry.meeting.data = function (current_year) {
   # Save as PDF
   
   filename=paste("percent_spring_landings.pdf", sep="")
-
+  
   pdf(file=file.path(wd, filename))
   par(mar = c(5, 4, 1, 1))
   cf=unique(spring$cfa)
   cf = cf[order(cf)]
   cols=c("blue", "red","black","green4")
   point=c(1,2,4,15)
-
-
+  
+  
   plot(spring$year, cex.main = .1, spring$perc, type="n", ylab="Percent of Total", xlab="Year", ylim=c(0,100), lty=1, col="red", pch=19, bg="white")
-
+  
   for (y in 1:length(cf)) {
     sprc=spring[spring$cfa==cf[y],]
     lines(x=sprc$year, y=sprc$perc, col=cols[y], lwd=2 )
@@ -384,7 +388,7 @@ January.industry.meeting.data = function (current_year) {
   legend("bottomright",paste(cf), bty="n", col=cols, lwd = 1.5, lty=1, inset=c(0,.1))
   par(mar=par.old)
   dev.off()
-
+  
   print(paste(filename, " created", sep=""))
   
   #########################################
@@ -393,29 +397,31 @@ January.industry.meeting.data = function (current_year) {
   
   # Clean for Catch Rate Data
   landings=logs
-  cleanlogsna=landings[! is.na(landings$num_of_traps),]
-  cleanlogscr=cleanlogsna[cleanlogsna$lbspertrap < 800,]
+  cleanlogsna=landings[!is.na(landings$num_of_traps),]
+  cleanlogscr=cleanlogsna[which(cleanlogsna$lbspertrap < 800),]
   #c=cleanlogscr
   
   logs.fixed = cleanlogscr
   #logs.fixed = cleanlogsna
-  areas = unique(logs.fixed$cfa0)
+  areas = unique(na.omit(logs.fixed$cfa0))
+  
   for (a in areas) {
-    q = which (logs$cfa0 == a)
+    q = which (logs.fixed$cfa0 == a)
     catchrate = sum(logs.fixed$pro_rated_slip_wt_lbs[q], na.rm=T)/(sum(logs.fixed$num_of_traps[q], na.rm=T))
-    output = rbind( data.frame(area=a, catchrate=catchrate)) }
+    output = rbind( data.frame(area=a, catchrate=catchrate)) 
+  }
   logs.fixed$area=logs.fixed$cfa0
   logs.fixed$area[logs.fixed$cfa0=="cfa23"]="S-ENS"
   logs.fixed$area[logs.fixed$cfa0=="cfa24"]="S-ENS"
   
   
   fixedtable<-logs.fixed %>%
-    group_by(area, year) %>%
-    summarise(landings_total_lbs = sum(pro_rated_slip_wt_lbs), effort_total = sum(num_of_traps))
+    dplyr::group_by(area, year) %>%
+    dplyr::summarise(landings_total_lbs = sum(pro_rated_slip_wt_lbs), effort_total = sum(num_of_traps))
   
-  days_fished<- logs.fixed %>%
-    group_by(year, cfa0 ) %>%
-    count(cfa0)
+  days_fished <- logs.fixed %>%
+    dplyr::group_by(year, cfa0 ) %>%
+    dplyr::count(cfa0)
   
   write.table(days_fished,file=file.path(wd, "days_fished.csv"), sep=",")
   
@@ -449,7 +455,7 @@ January.industry.meeting.data = function (current_year) {
   cpu$cfa[cpu$cfa=="cfa24"]="CFA 24"
   cpu$cfa[cpu$cfa=="cfa4X"]="4X"
   
-
+  
   # Produce windows metafile of annual catch rates
   
   filename=paste(iy,"_annual_cpue_kg", ".emf", sep="")
@@ -465,7 +471,7 @@ January.industry.meeting.data = function (current_year) {
   aland(cpu)
   par(mar=par.old)
   dev.off()  
-
+  
   print(paste(filename, " created", sep=""))
   
   # calculate mean catch rates for the season by CFA
@@ -477,14 +483,14 @@ January.industry.meeting.data = function (current_year) {
     
     cq = cpu.quarter[which(cpu.quarter$q == i),]
     filename=paste("annual_cpue_kg_",i, ".pdf", sep="")
-
-
+    
+    
     pdf(file=file.path(wd, filename))
     par(mar = c(5, 4, 1, 1))
     aland(cq)
     par(mar=par.old)
     dev.off()    
-
+    
     print(paste(filename, " created", sep=""))
     
   }
@@ -502,7 +508,7 @@ January.industry.meeting.data = function (current_year) {
   
   ##using this to remove one log record in 2020 that is causing problems
   logs.fixed2<-logs.fixed[!(logs.fixed$vr_number=="105873" & logs.fixed$year=="2020"),]
- 
+  
   
   #use log.fixed2 for the rest of this section to replot data without the log error for this record
   
@@ -534,8 +540,8 @@ January.industry.meeting.data = function (current_year) {
   names(effort)=c("week", "area", "year", "tot_traps")
   
   effortsum<-effort %>%
-    group_by(area, year) %>%
-    summarise(total = sum(tot_traps))
+    dplyr::group_by(area, year) %>%
+    dplyr::summarise(total = sum(tot_traps))
   
   wk=merge(weekly, effort)
   
@@ -571,23 +577,17 @@ January.industry.meeting.data = function (current_year) {
   recent=wk[i,]
   recent=recent[is.finite(recent$cpue),]
   
- 
-  #Produce emf file
-  filename=paste("weekly_cpue_smoothed2.emf", sep="")
-  emf(file=file.path(wd, filename), bg="white")
-  smoothcatch(recent, past)
-  dev.off()
-  print(paste(filename, " created", sep=""))
-  
   #Produce pdf file
-
-  filename=paste("weekly_cpue_smoothed2.pdf", sep="")
-  pdf(file=file.path(wd, filename), width = 10)
+  
+  fn=file.path(wd, "weekly_cpue_smoothed2.pdf")
+  #pdf(file=file.path(wd, filename), width = 10)
   par(mar = c(4, 4, 1, 1))
-  smoothcatch(recent, past)
+  retx = smoothcatch(recent)
+  ggsave(filename = fn, device = "pdf", width = 12, height = 8)
+  
   par(mar=par.old)
-  dev.off()
-
+  # dev.off()
+  
   print(paste(filename, " created", sep=""))
   
   #########################################
@@ -596,7 +596,7 @@ January.industry.meeting.data = function (current_year) {
   
   ###coerce 4X into data set
   i4x=which(logs$cfa0=="cfa4X")
- 
+  
   logs$date_landed[i4x] = logs$date_landed[i4x] - lubridate::days(91) #subtracts 91 days from all dates ( 7776000seconds)
   logs$year=as.character(lubridate::year(logs$date_landed))        #determine year
   logs$date_landed[i4x] = logs$date_landed[i4x] + lubridate::days(91) #add the days back
@@ -605,7 +605,7 @@ January.industry.meeting.data = function (current_year) {
   #landings= logs[iyear,]
   iyear = which(logs$year > iy-4  & logs$year <= current_year)
   landings= logs[iyear,]
-
+  
   
   cleanlogsna=landings[! is.na(landings$num_of_traps),]
   cleanlogscr=cleanlogsna[cleanlogsna$lbspertrap < 800,]
@@ -628,7 +628,7 @@ January.industry.meeting.data = function (current_year) {
   monthlycpue$lbspertrap[!is.finite(monthlycpue$lbspertrap)]=0
   monthlycpue$kg=NA
   monthlycpue$kg=monthlycpue$lbspertrap/2.204626
-
+  
   monthlycpue=monthlycpue[monthlycpue$month %in% c("April", "May", "June", "July", "August", "September"),]
   
   
@@ -655,15 +655,15 @@ January.industry.meeting.data = function (current_year) {
   print(paste(filename, " created", sep=""))
   
   #Produce pdf file
-
-
+  
+  
   filename=paste("monthly_catch_rates",".pdf", sep="")
   pdf(file=file.path(wd, filename))
   par(mar = c(5, 4, 1, 1))
   plotmonthlycpue(c23, c24, north, monthlycpue, iy)
   par(mar=par.old)
   dev.off()  
-
+  
   print(paste(filename, " created", sep=""))
   
   ###########################################
@@ -684,7 +684,7 @@ January.industry.meeting.data = function (current_year) {
     mn=mean(cr$kg)
     stdev=sd(cr$kg)
     out=rbind(out,c(a,mn,stdev))
-  #  print(paste(a, mn, stdev))
+    #  print(paste(a, mn, stdev))
   }
   
   out =as.data.frame(out)
@@ -724,11 +724,11 @@ January.industry.meeting.data = function (current_year) {
   print(paste(filename, " created", sep=""))
   
   filename=paste("vessels_per_year", ".pdf", sep="")
-
+  
   pdf(file=file.path(wd, filename))
   par(mar = c(5, 4, 1, 1))
   plot(boats$year, boats$vessels, type="n", ylim=c(0,(max(boats$vessels)+1)), ylab="Vessels", xlab="Year" )
-
+  
   
   for (l in lim){
     q = which(boats$cfa0 == areas[l] )
@@ -737,7 +737,7 @@ January.industry.meeting.data = function (current_year) {
   legend("topright",paste(areas), bty="n", col=cols, pch=point, lty=1, ncol=2)
   par(mar=par.old)
   dev.off()
-
+  
   print(paste(filename, " created", sep=""))
   
   
@@ -769,7 +769,7 @@ January.industry.meeting.data = function (current_year) {
   # Create maps with pbsMapping
   #--------------------------------------------
   i=which(logs$cfa0=="cfa23")
-  iy=max(as.numeric(logs$year[i]))
+  #iy=max(as.numeric(logs$year[i]))
   iy1=as.numeric(iy)-1
   iyear=which(logs$year==iy)
   iyear1=which(logs$year==iy1)
@@ -784,7 +784,7 @@ January.industry.meeting.data = function (current_year) {
   
   #------------------------------------------------------------------
   # Plot last two seasons' fishing positions on same map
-
+  
   areas=c("cfa23", "cfa24zoom", "nens", "sens", "cfa4x")
   
   # Create EMF's
@@ -800,7 +800,7 @@ January.industry.meeting.data = function (current_year) {
   
   for (a in areas){
     filename=paste(a,"_past_two_years_fishing_positions.pdf", sep="")
- 
+    
     if(any(c("cfa23", "cfa24zoom") %in% a)){
       pdf(file=file.path(wd, filename), width = 6)
     }else{
@@ -817,7 +817,7 @@ January.industry.meeting.data = function (current_year) {
   
   
   #Spring
-
+  
   areas=c("cfa23", "cfa24zoom", "nens", "sens")
   
   #Create EMF's
@@ -858,8 +858,8 @@ January.industry.meeting.data = function (current_year) {
     if(grepl("cfa", a)){
       pdf(file=file.path(wd, filename), width = 6)
     }
-      else{
-        pdf(file=file.path(wd, filename), width = 8)
+    else{
+      pdf(file=file.path(wd, filename), width = 8)
     }
     seasonmap(a = logs[iyearsum,], b = logs[iyear1sum,], area = a, cy = iy, season = "Summer")
     dev.off()
@@ -873,7 +873,7 @@ January.industry.meeting.data = function (current_year) {
   # get all info from observed crab sets
   
   
-
+  
   
   h=names(obs)
   h[h=="LATITUDE"] = "lat"
@@ -923,12 +923,12 @@ January.industry.meeting.data = function (current_year) {
   x$BOARD_DATE[i4x] = x$BOARD_DATE[i4x] - lubridate::days(91) #subtracts 91 days from all dates ( 7776000seconds)
   x$year=as.character(lubridate::year(x$BOARD_DATE))        #determine year
   x$BOARD_DATE[i4x] = x$BOARD_DATE[i4x] + lubridate::days(91) #add the days back
- 
+  
   
   #Choose most recent year and create directory
   i=which(x$cfa=="CFA 23")
-  iy=max(as.numeric(as.character(x$year)))
-
+  # iy=max(as.numeric(as.character(x$year)))
+  
   # --------------------------------------
   # divide into north, south, cfa 23, cfa 24, and 4X as required
   
@@ -992,7 +992,7 @@ January.industry.meeting.data = function (current_year) {
       }
     }
   }
-
+  
   out$Observed=round(as.numeric(as.character(out$Observed)))
   out$Percent=round(out$Observed/out$Landings*100,1)
   names(out)=c("Year", "Area", "Observed (mt)", "Traps Sampled", "Traps Observed", "Landings (mt)", "Percent")
@@ -1005,7 +1005,7 @@ January.industry.meeting.data = function (current_year) {
     for (c in cfa){
       if(!any(year.land$year==y & year.land$cfa==c)){
         out$Landings[out$Area==c & out$Year==y]=NA
-          }
+      }
       else{
         out$Landings[out$Area==c & out$Year==y]=round(year.land$mt[year.land$year==y & year.land$cfa==c],0)
       }
@@ -1032,7 +1032,7 @@ January.industry.meeting.data = function (current_year) {
   put$`Traps Observed` = as.numeric(put$`Traps Observed`)
   put$`Percent Observed`[which(put$`Percent Observed` == 'NA(NA)')] = '-'
   #source("C:/Scripts/functions/tab.4.tex.r")
-    kbl(x = put, row.names = F, "latex", booktabs = T) %>%
+  kbl(x = put, row.names = F, "latex", booktabs = T) %>%
     kable_classic() %>%
     kable_styling(latex_options = c("striped", "scale_down")) %>%
     as_image(file = file.path(wd,  "observersummary2.pdf"))
@@ -1041,14 +1041,14 @@ January.industry.meeting.data = function (current_year) {
   
   
   pdf(file = file.path(wd, "observersummary.pdf"))
-
+  
   grid.table(put, theme=ttheme_default(), rows= NULL)
   dev.off()
   
   # --------------------------------------
   # Use the script below to create the map of soft crab sampling locations
-
- 
+  
+  
   a=setsobs
   
   # setting "hardlines" below lets you switch between multiple durometer levels to be considered hard
@@ -1202,7 +1202,7 @@ January.industry.meeting.data = function (current_year) {
   
   # --------------------------------------
   # divide into north, south, and 4X by positions
-
+  
   cfa=c("cfanorth", "cfa23", "cfa24", "cfa4x")
   
   x$cfa=NA
@@ -1297,7 +1297,7 @@ January.industry.meeting.data = function (current_year) {
                    col="red", ...)
       panel.abline(h=20, col="red", lty=1, lwd=1, ...) }
   )
-     
+  
   print(plot_obj)
   dev.off()
   
@@ -1310,7 +1310,7 @@ January.industry.meeting.data = function (current_year) {
     ,ylim=c(0, 100), xlab="Month", ylab="Percent Soft",
     panel = function(x, y, ...) {
       lattice::panel.xyplot(x, y, type="p",  pch=20,
-                   col="red", ...)
+                            col="red", ...)
       lattice::panel.abline(h=20, col="red", lty=1, lwd=1, ...) }
   )
   print(plot_obj)
@@ -1368,18 +1368,18 @@ January.industry.meeting.data = function (current_year) {
     kable_styling(latex_options = c("striped", "scale_down")) %>%
     as_image(file = file.path(wd,  "softsummary2.pdf"))
   
-    
+  
   
   #-------------------------------------------------
   # Use below to save a text file of the locations of soft crab to plot in MapInfo
-
+  
   #years=unique(x$year)
   #
   #for (y in years)    {
   #
   
   x=jj
-  iy= max(as.numeric(as.character(x$year)))
+  #iy= max(as.numeric(as.character(x$year)))
   iyear=which(x$year %in% iy)
   
   # Need to remove any extraeneous points
@@ -1416,7 +1416,7 @@ January.industry.meeting.data = function (current_year) {
   
   #----------------------------------------------------------
   # CFA 23 Soft Crab Map
-
+  
   
   filename=paste(iy, "_cfa23_soft_crab_positions_",hl, ".emf", sep="")
   win.metafile(file=file.path(wd, filename), width=10)
@@ -1430,7 +1430,7 @@ January.industry.meeting.data = function (current_year) {
   
   #----------------------------------------------------------
   # CFA 24 Soft Crab Map
-
+  
   
   filename=paste(iy, " CFA24 Soft Crab Positions(",hl, ").emf", sep="")
   win.metafile(file=file.path(wd, filename), width=10)
@@ -1471,7 +1471,7 @@ January.industry.meeting.data = function (current_year) {
   
   #----------------------------------------
   # create columns for area and CFA
-
+  
   x=a
   
   cfa=c("cfanorth", "cfa23", "cfa24", "cfa4x")
@@ -1506,14 +1506,14 @@ January.industry.meeting.data = function (current_year) {
   #Following lines force 4X into proper dataset by year
   # i.e. Winter 2011 gets grouped under 2010 "Season"
   i4x=which(x$cfa %in% "4X")
- 
+  
   x$BOARD_DATE[i4x] = x$BOARD_DATE[i4x] - lubridate::days(91) #subtracts 91 days from all dates ( 7776000seconds)
   x$year=as.character(lubridate::year(x$BOARD_DATE))        #determine year
   x$BOARD_DATE[i4x] = x$BOARD_DATE[i4x] + lubridate::days(91) #add the days back
   
   
- #  logs$year=as.character(lubridate::year(logs$date_landed))  
-
+  #  logs$year=as.character(lubridate::year(logs$date_landed))  
+  
   
   yrs=as.character(sort(as.numeric(unique(x$year))))
   x$year=factor(x$year,levels=yrs, labels=yrs)
@@ -1524,8 +1524,8 @@ January.industry.meeting.data = function (current_year) {
   x$season[x$month %in% c("Oct", "Nov", "Dec")]="Fall"
   
   #iyear=as.character(max(as.numeric(as.character(x$year))))
-  iyear=as.character(max(as.numeric(as.character(x$year[which(x$cfa=="CFA 24")]))))
-  iyear2=as.character(as.numeric(iyear)-1)
+  iyear=iy
+  iyear2=iy-1
   
   yrs=c(iyear2, iyear)
   
@@ -1612,10 +1612,10 @@ January.industry.meeting.data = function (current_year) {
       if (n$area[1]=="4X"){
         areaname="4X"}
       
-
+      
       
       filename=paste(yr," ", areaname, " Size Freq", ".emf", sep="")
-
+      
       emf(file=file.path(wd, filename), bg="white")
       splot(plot, areaname, cc, total, yr)
       dev.off()
@@ -1718,7 +1718,7 @@ January.industry.meeting.data = function (current_year) {
   #--------------------------------
   # To Determine mean size of catch
   
-
+  
   meansizes = compute.means( x=x, var=c("FISH_LENGTH"), index=c("year", "cfa")  )
   # Add a calculated mass in g for the mean size crab
   meansizes$mass=NA
@@ -1730,7 +1730,7 @@ January.industry.meeting.data = function (current_year) {
   
   
   # Create a plot of mean cw by year for each area
-
+  
   #filename=paste(iyear," ", "Mean CW Observed", ".emf", sep="")
   filename=paste(iyear," ", "Mean CW Observed", ".emf", sep="")
   win.metafile(file=file.path(wd, filename), width=10)
@@ -1751,7 +1751,7 @@ January.industry.meeting.data = function (current_year) {
   names(base)=c("cw", "mass")
   base$cw=c(1:150)
   base$mass=(1.543*10^-4)*((base$cw)^3.206)
-
+  
   filename=paste(iyear," ", "CW vs Mass", ".emf", sep="")
   win.metafile(file=file.path(wd, filename), width=10)
   baseplot(x=base)
@@ -1784,10 +1784,10 @@ January.industry.meeting.data = function (current_year) {
   #Create a map of survey stations for past year
   
   # Call variable required by PBS Mapping
-
+  
   #All sets
   
- 
+  
   all$yr=NA
   all$yr=lubridate::year(all$BOARD_DATE)
   all$yr[which(lubridate::month(all$BOARD_DATE) < 4)] = all$yr[which(lubridate::month(all$BOARD_DATE) < 4)] - 1 
@@ -1803,13 +1803,13 @@ January.industry.meeting.data = function (current_year) {
   
   #PDF
   pdf(file=file.path(wd, filename), width = 9)
-makemap(a, area="all", title=paste(iy, "Snow Crab Survey", sep=" "))
+  makemap(a, area="all", title=paste(iy, "Snow Crab Survey", sep=" "))
   addPoints(data=a, col="black", pch=20, cex=.6)
   dev.off()
   print(paste(filename, " created", sep=""))
   
   
-  planned = read.csv(file.path("S:", "Survey", "Annual Files by Year", "ENS Snow Crab 2021 Survey", "2021_Survey_Stations.csv"))
+  planned = read.csv(file.path("S:", "Survey", "Annual Files by Year", paste("ENS Snow Crab ",iy," Survey", sep = ""), paste(iy, "_Survey_Stations.csv", sep ="")))
   notcomplete = planned[which(!as.numeric(planned$Station) %in% as.numeric(a$station)),]
   notcomplete$X = notcomplete$Long.Start
   notcomplete$Y = notcomplete$Lat.Start
@@ -1837,7 +1837,7 @@ makemap(a, area="all", title=paste(iy, "Snow Crab Survey", sep=" "))
     q = which (logs.fixed$cfa0 == a)
     catchrate = sum(logs.fixed$pro_rated_slip_wt_lbs[q], na.rm=T)/(sum(logs.fixed$num_of_traps[q], na.rm=T))
     output = rbind(output, data.frame(area=a, catchrate=catchrate))
-    }
+  }
   logs.fixed$area=logs.fixed$cfa0
   logs.fixed$area[logs.fixed$cfa0=="cfa23"]="CFA 23"
   logs.fixed$area[logs.fixed$cfa0=="cfa24"]="CFA 24"
@@ -1853,15 +1853,15 @@ makemap(a, area="all", title=paste(iy, "Snow Crab Survey", sep=" "))
   year.land$cfa[year.land$cfa=="cfa4x"]="CFA 4X"
   year.land$cfa[year.land$cfa=="north"]="N-ENS"
   
-  test<- cpue %>%# to join the receiver and data files
-    left_join(year.land, by = c("year" = "year", "area" = "cfa"))
+  test<- cpue %>%
+    dplyr::left_join(year.land, by = c("year" = "year", "area" = "cfa"))
   
   test$area[test$area=="cfa4X"]="CFA 4X"
   
   table1<-test %>%
-    select(area, year, mt, cpuekg) %>%
-    group_by(area) %>%
-    filter(year > '2001')
+    dplyr::select(area, year, mt, cpuekg) %>%
+    dplyr::group_by(area) %>%
+    dplyr::filter(year > '2001')
   
   source(file.path("S:", "CA's", "CA_db", "CA_database_functions.R"))
   TAC = CA.getTable("TAC")
@@ -1885,7 +1885,7 @@ makemap(a, area="all", title=paste(iy, "Snow Crab Survey", sep=" "))
     row_spec(0,bold=TRUE) %>% 
     kable_styling(latex_options = c("striped", "scale_down")) %>%
     as_image(file = file.path(wd,  "landing_data_Tac.pdf"))
-
+  
   
   write.csv(table1, file = file.path(wd, "landing_data2.csv"), row.names = FALSE)
   write.csv(table1a, file = file.path(wd, "landing_data_Tac.csv"), row.names = FALSE)
@@ -1927,7 +1927,7 @@ aland=function(x){
     point=c(1,2,4,15)
     
   }
-
+  
   plot(x$year, x$cpuekg, type="n", ylab="Catch Rate (kg/ trap)", xlab="Year", ylim=c(0,1.2*(max(x$cpuekg, na.rm = T))), lty=1, col="red", pch=19)
   
   for (y in 1:length(cf)) {
@@ -1952,34 +1952,34 @@ compute.catchrate.quarter = function (x, var, index) {
   for (i in index) { res[,i] = as.character( res[,i] ) }
   return(res) }
 
-smoothcatch=function(x, pst){
+smoothcatch=function(x){
   
   cols=c("black", "blue","red", "green4" )
   icon = c(4, 1, 2, 0)
   x$yeargroup = x$year
   x$yeargroup[which(x$area == "4X" & x$week < 6 )] = as.numeric(x$year[which(x$area == "4X" & x$week < 6 )])-1
-  ggplot(x, aes(time, cpuekg, colour=area, shape = area,
-                group=interaction(yeargroup, area))) + 
+  retx = ggplot(x, aes(time, cpuekg, colour=area, shape = area,
+                       group=interaction(yeargroup, area))) + 
     geom_point(size = 1, stroke = .5) + geom_line(size = .5) + xlab("Week") + ylab("Catch Rate (kg/ trap)") + 
     scale_color_manual(values = cols) + scale_shape_manual(values=icon) + 
     theme_bw() + 
     theme(legend.title = element_blank(), legend.position = c(0.95, 0.9),legend.key = element_rect(colour = NA, fill = NA),)
   
-  
+  return(retx)
   
   #cf=unique(x$area)
   #cf = cf[order(cf)]
   #non4x=x[x$area %in% c("CFA 23", "CFA 24", "N-ENS"),]
-#  fc=unique(non4x$area)
+  #  fc=unique(non4x$area)
   
- # cols=c("black", "blue","red", "green4" )
+  # cols=c("black", "blue","red", "green4" )
   #point=c(8, 16, 17, 15)
-
-#  plot(x$time,x$cpuekg , type="n", ylab="Catch Rate (kg/ trap)",
-#       xlab="Week", ylim=c(0,(max(x$cpuekg))), xaxp=c(min(as.numeric(pst)), max(as.numeric(pst)), 2))
-#  legend("topright",paste(cf), bty="n", col=cols, pch=point)
- 
- ## for (y in 1:length(cf)) {
+  
+  #  plot(x$time,x$cpuekg , type="n", ylab="Catch Rate (kg/ trap)",
+  #       xlab="Week", ylim=c(0,(max(x$cpuekg))), xaxp=c(min(as.numeric(pst)), max(as.numeric(pst)), 2))
+  #  legend("topright",paste(cf), bty="n", col=cols, pch=point)
+  
+  ## for (y in 1:length(cf)) {
   ##  c=x[x$area==cf[y],]
   #  c=c[order(c$time),]
   #  c=c[c$run_lbs>quantile(c$run_lbs,.05),]
@@ -1993,8 +1993,8 @@ smoothcatch=function(x, pst){
   #    if(x$area)
   #    lines(x=this$time, y=this$cpuekg, col=cols[y], cex=0.6)
   #  }}}
-
-  }
+  
+}
 
 
 compute.means = function (x, var, index) {
@@ -2020,13 +2020,13 @@ convert.degmin2degdec = function (x) {
 }
 
 plotmonthlycpue=function(c23, c24, north, moncpue, year){
- # win.graph(width = 14, height = 8)
+  # win.graph(width = 14, height = 8)
   toplot=c23 #change for each cfa to create CPUE by month
-
-
+  
+  
   plot(toplot$lbspertrap, main= paste(year,"Monthly","Catch Rate", sep=" "),
-               cex.main=1.2, xlab= "Month", type="n",axes=F, ylab="Catch Rate (lbs/trap)",
-               ylim=c(0,1.2*(max(moncpue$lbspertrap))), col="blue")
+       cex.main=1.2, xlab= "Month", type="n",axes=F, ylab="Catch Rate (lbs/trap)",
+       ylim=c(0,1.2*(max(moncpue$lbspertrap))), col="blue")
   axis(1, at = 1:length(toplot$lbspertrap), labels = toplot$month, cex.axis=0.8)
   axis(2)
   toplot$lbspertrap[toplot$lbspertrap=="0"]=NA
@@ -2051,7 +2051,7 @@ plotmonthlycpue=function(c23, c24, north, moncpue, year){
   lines(toplot$kg, col="green4", lwd=2)
   text(5.3, 20, toplot$cfa, col="green4", cex=1.5, pos=4)
   
-
+  
 }
 
 compute.vessels = function (x, var, index) {
@@ -2068,32 +2068,33 @@ compute.vessels = function (x, var, index) {
 
 
 fishmap=function(a, b, area, cy){
-makemap(x,area=area, title="Reported Fishing Positions", addlabels=F)
+  makemap(x,area=area, title="Reported Fishing Positions", addlabels=F)
   #last= logs[iyear1,]
   last=as.EventData(b, projection= "LL")
   addPoints(data=last, col="yellow", pch=20, cex=0.8)
   #current= logs[iyear,]
   current=as.EventData(a, projection= "LL")
   addPoints(data=current, col="red", pch=20, cex=0.8)
-coverup(area=area)
+  coverup(area=area)
   legend("bottomright", paste(c(cy-1, cy)), pch=20, col=c("yellow","red"), bty="o", bg="grey75", pt.cex=1.5)
- 
-  }
+  
+}
 
 seasonmap=function(a, b, area, cy, season){
- 
-makemap(x,area=area, title=paste(season, " Fishing Positions", sep = ""), addlabels=F)
+  
+  makemap(x,area=area, title=paste(season, " Fishing Positions", sep = ""), addlabels=F)
   
   last=as.EventData(b, projection= "LL")
   addPoints(data=last, col="yellow", pch=20, cex=0.8)
   current=as.EventData(a, projection= "LL")
   addPoints(data=current, col="red", pch=20, cex=0.8)
-
+  
   coverup(area=area)
   legend("bottomright", paste(c(cy-1, cy)), pch=20, col=c("yellow","red"), bty="o", bg="grey75", pt.cex=1.5)
 }
 softbyarea=function(dta, areastr){
-makemap(dta, area=areastr, addlabels=F,title=paste(dta$year[1]))
+  #makemap(dta, area=areastr, addlabels=F,title=paste(dta$year[1]))
+  makemap(dta, area=areastr, addlabels=F)
   if(nrow(dta[dta$color=="green4",])>0)addPoints(data=dta[dta$color=="green4",], col= "black", bg="green4", pch=21)
   if(nrow(dta[dta$color=="yellow",])>0)addPoints(data=dta[dta$color=="yellow",], col= "black", bg="yellow", pch=21)
   if(nrow(dta[dta$color=="red",])>0)addPoints(data=dta[dta$color=="red",], col= "black", bg="red", pch=21)
