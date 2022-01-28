@@ -21,13 +21,15 @@ if(0){ # Do not want to execute report creation on package loading, run
 #  databases need to be final from the previous season. e Gully MPA_Post-Activity # 
 #  and Incident Report.                                                           #
 #                                                                                 #
-#        THIS NEEDS TO BE SUBMITTED 90 DAYS AFTER OPERATIONS WITHING THE AREA     #
-#        NOV/DEC                                                                  #
+ 
+  
+  
+#  !!!!!!! ADD TEMPERATURE PLOTS FOR TRAP LOGGERS  !!!!!!!!!  #
   
   January.industry.meeting.data(current_year)
   V2LSCF.SCtemp.data(current_year)
   V2LSCF.summary.data(current_year)
-  Preliminary.survey.data(current_year)
+  Preliminary.survey.data(current_year, code break because you didnt add logger plot)
   #Accoustic.data(current_year)
     
   ##Need to add one that creates one presentation for all years as this is what we do starting 2021.
