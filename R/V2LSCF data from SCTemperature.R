@@ -193,7 +193,8 @@ WHERE PROJECT = 'V2LSCF'
   fn = file.path(fig.fn, "monthplot.plot.all.pdf")
   monthplot <- ggplot(monthlymeandat) +
     geom_point(aes(x = yearmon, y = monthly_AVG, col = LINE))+
-    geom_line(aes(x = yearmon, y = monthly_AVG, col = LINE))
+    geom_line(aes(x = yearmon, y = monthly_AVG, col = LINE))+
+    labs(x="Date", y="Ave. Temperature (°C)")
   monthplot
   ggsave(filename = fn, device = "pdf", width = 7, height = 5)
   
@@ -224,8 +225,7 @@ WHERE PROJECT = 'V2LSCF'
     geom_line() +
     geom_point()+
     # ggtitle("Average monthly temperature for North and South lines in the V2LSCF receiver array.") +
-    ylab(NULL)+
-    xlab(NULL)+
+    labs(x="Date", y="Ave. Temperature (°C)")
     scale_color_manual(values=c('#0072B2','#D55E00'))
   
   monthlineplot
@@ -243,8 +243,7 @@ WHERE PROJECT = 'V2LSCF'
   monthtempplot<-ggplot(sm, aes( y=avg_temp, x= yearmon, col = PID)) + 
     geom_line() +
     ggtitle("Average monthly temperature .") +
-    ylab(NULL)+
-    xlab(NULL)
+    labs(x="Date", y="Ave. Temperature (°C)")
   monthtempplot
   ggsave(filename = fn, device = "pdf", width = 7, height = 5)
 }

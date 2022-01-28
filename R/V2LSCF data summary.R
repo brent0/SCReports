@@ -28,19 +28,19 @@ V2LSCF.summary.data = function (current_year, redo = F) {
     # ---- Import Data ----
     # Import complete file if not updating data
     
-    d2015<-read.csv("v2lscf_qualified_detections_2015.csv")
+    d2015<-read.csv("v2lscf_qualified_detections_2015redo.csv")
     d2016<-read.csv("v2lscf_qualified_detections_2016update2.csv")
     d2017<-read.csv("v2lscf_qualified_detections_2017update.csv")
     d2018<-read.csv("v2lscf_qualified_detections_2018update.csv")
     d2019<-read.csv("v2lscf_qualified_detections_2019update.csv")
     d2020<-read.csv("v2lscf_qualified_detections_2020update.csv")
+    d2021<-read.csv("v2lscf_qualified_detections_2021.csv")
+    past<-read.csv("pastworktocompare2.csv")
     
-    past<-read.csv("pastworktocompare.csv")
+    # past1<- past %>% 
+    #   select(catalognumber, fieldnumber, Project, Common.Name)
     
-    past1<- past %>% 
-      select(catalognumber, fieldnumber, Project, Common.Name)
-    
-    names(past1)[3]<-"Common.Name2"
+    #names(past1)[3]<-"Common.Name2"
     
     
     
@@ -52,12 +52,20 @@ V2LSCF.summary.data = function (current_year, redo = F) {
     names(d2019)
     names(d2020)
     
-    names(d2020)[1]<-"basisofrecord"
+   # names(d2020)[1]<-"basisofrecord"
+    
+    if(any(grepl("ï..basisofrecord", names(d2015))))names(d2015)[which(names(d2015) == "ï..basisofrecord")] = "basisofrecord"
+    if(any(grepl("ï..basisofrecord", names(d2016))))names(d2016)[which(names(d2016) == "ï..basisofrecord")] = "basisofrecord"
+    if(any(grepl("ï..basisofrecord", names(d2017))))names(d2017)[which(names(d2017) == "ï..basisofrecord")] = "basisofrecord"
+    if(any(grepl("ï..basisofrecord", names(d2018))))names(d2018)[which(names(d2018) == "ï..basisofrecord")] = "basisofrecord"
+    if(any(grepl("ï..basisofrecord", names(d2019))))names(d2019)[which(names(d2019) == "ï..basisofrecord")] = "basisofrecord"
+    if(any(grepl("ï..basisofrecord", names(d2020))))names(d2020)[which(names(d2020) == "ï..basisofrecord")] = "basisofrecord"
+    if(any(grepl("ï..basisofrecord", names(d2021))))names(d2021)[which(names(d2021) == "ï..basisofrecord")] = "basisofrecord"
     
     
+   
     
-    
-    test<-rbind(setDT(d2015), setDT(d2016), setDT(d2017), setDT(d2018), setDT(d2019), setDT(d2020), fill=TRUE)
+    test<-rbind(setDT(past),setDT(d2015), setDT(d2016), setDT(d2017), setDT(d2018), setDT(d2019), setDT(d2020), setDT(d2021), fill=TRUE)
     names(test)
     
     levels(test$collectornumber)
@@ -70,8 +78,8 @@ V2LSCF.summary.data = function (current_year, redo = F) {
     
     #----trying to keep past tag identification work by merging files---- 
     
-    complete<- test %>%
-      inner_join(past1, by = c("catalognumber" = "catalognumber", "fieldnumber" = "fieldnumber"))
+   complete = test
+    
     
     
     distinct(complete) #check for duplicates
@@ -82,7 +90,7 @@ V2LSCF.summary.data = function (current_year, redo = F) {
     head(complete)
     tail(complete)
     
-    write.csv(test,'S:/Research Projects/MPA/SABsummary/summary data/V2LSCF_compiled_up_to_2022.csv')
+    #write.csv(test,'S:/Research Projects/MPA/SABsummary/summary data/V2LSCF_compiled_up_to_2022.csv')
     
     
     write.csv(complete,'S:/Research Projects/MPA/SABsummary/summary data/V2LSCF_complete_up_to_Jan2022.csv')
@@ -94,6 +102,17 @@ V2LSCF.summary.data = function (current_year, redo = F) {
   
   #---- prepare tables ----
   #summarize to get count of species
+  if(any(grepl("trackercode", names(complete))))names(complete)[which(names(complete) == "trackercode")] = "Project"
+  complete$scientificname[which(complete$scientificname == "Gadus morhua")] = "Atlantic Cod"
+  complete$scientificname[which(complete$scientificname == "Anarhichas lupus")] = "Atlantic Striped Wolffish"
+  complete$scientificname[which(complete$scientificname == "Prionace glauca")] = "Blue Shark"
+  complete$scientificname[which(complete$scientificname == "Lamna nasus")] = "Porbeagle Shark"
+  complete$scientificname[which(complete$scientificname == "Microgadus tomcod")] = "Atlantic Tomcod"
+  complete$scientificname[which(complete$scientificname == "Amblyraja radiata")] = "Thorny Skate"
+  if(any(grepl("scientificname", names(complete))))names(complete)[which(names(complete) == "scientificname")] = "Common.Name"
+  
+  write.csv(complete,'S:/Research Projects/MPA/SABsummary/summary data/V2LSCF_complete_cleanup.csv')
+  complete<-read.csv('S:/Research Projects/MPA/SABsummary/summary data/V2LSCF_complete_cleanup.csv')
   
   
   table1 <- complete %>% dplyr::group_by(Project) %>%
@@ -106,7 +125,7 @@ V2LSCF.summary.data = function (current_year, redo = F) {
   table1 = formattable(table1, align = c("l", rep("r", NCOL(table1) - 1)))
   
   table1
-  
+   
   
   table2<-complete %>%
     dplyr::group_by(Project, Common.Name) %>%
@@ -142,7 +161,14 @@ V2LSCF.summary.data = function (current_year, redo = F) {
   table2b$Project[table2b$Project == "SPI"] <- "SPI - Shippagan Cod Tagging"
   table2b$Project[table2b$Project == "TAG"] <- "TAG -Tag a Giant"
   table2b$Project[table2b$Project == "ZSC"] <- "ZSC- Scotian Shelf Snow Crab Tagging**"
-  
+  table2b$Project[table2b$Project == "ESRF"] <- "ESRF - Atlantic Salmon Offshore Tracking Project"
+  table2b$Project[table2b$Project == "ACT.PROJ179"] <- "ACT.PROJ179 - Massachusetts White Shark Research Program"
+  table2b$Project[table2b$Project == "ACT.PROJ129"] <- "ACT.PROJ129 - New York Juvenile White Shark Study"
+  table2b$Project[table2b$Project == "FACT.CCOCE"] <- "FACT.CCOCE - Movements and migration of sharks in the Western North Atlantic Ocean"
+  table2b$Project[table2b$Project == "BDLSPG"] <- "Apoqnmatulti’k - Use of Mi'kmaw, Local, and Western knowledge to study aquatic species in Bras d'Or Lake"
+  table2b$Project[table2b$Project == "MIGRAMAR.LBTPCR"] <- "Leatherback Turtle Tracking in Pacuare Wildlife Reserve, CR"
+  table2b$Project[table2b$Project == "V2LNSSA"] <- "Nova Scotia Salmon Association, Sheet Harbour"
+  table2b$Project[table2b$Project == "V2LWSAMP"] <- "White Shark Acoustic Monitoring Program"
   names(table2b)[1]<-"PROJECT"
   names(table2b)[2]<-"SPECIES"
   names(table2b)[3]<-"INDIVIDUALS"
@@ -277,14 +303,15 @@ V2LSCF.summary.data = function (current_year, redo = F) {
   x1test$Date<-as.Date(as.character(x1test$Date))
   
   fn = file.path(fig.fn, "month.data.pdf")
-  
+  library(RColorBrewer)
+  nb.cols <- length(unique(x1test$Common.Name))
+  mycolors <- colorRampPalette(brewer.pal(5, "Set3"))(nb.cols)
   speciesplot<-ggplot(x1test, aes(fill=Common.Name, y=count, x= Date)) + 
     geom_bar(position="stack", stat="identity") +
-    scale_fill_brewer(palette = "Set3", direction = -1)  +
+    scale_fill_manual(values = mycolors)  +
     ggtitle("Individual species occurrances by month for the duration of\n      the deployment of the V2LSCF receiver line.") +
-    ylab(NULL)+
-    xlab(NULL)+
-    theme_linedraw() 
+    labs(x="Year", y="Individuals Detected")+
+    theme_bw() 
   speciesplot  
   ggsave(speciesplot, filename = fn, device = "pdf", width = 7, height = 5)
   

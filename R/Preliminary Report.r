@@ -65,6 +65,18 @@ WHERE SNCRABDETAILS.TRIP = SNCRABSETS.TRIP AND SNCRABDETAILS.SET_NO = SNCRABSETS
   bcd=as.EventData(bcd, projection="LL")
   
   
+  x1 <- bcd %>%
+    dplyr::group_by(yr) %>%
+    dplyr::summarise(count = n_distinct(EID))
+
+ ggplot(x1, aes(yr, count), col = "blue") +
+   ggtitle("Bitter Crab Encountered") +
+   geom_point(size = 1, stroke = .5) + geom_line(size = .5) + xlab("Year") + ylab("Individual Crab") +
+   theme_bw()
+    
+ fn=file.path(wd, "bitter.pdf")
+ ggsave(filename = fn, device = "pdf", width = 12, height = 8)
+  
   yr = current_year
   
   b=bcd[bcd$yr==yr,]

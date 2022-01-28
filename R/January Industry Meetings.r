@@ -1,7 +1,7 @@
 par.old = par()$mar
 #NOTE:  This script has been modified on the fly to create tables..will need to be cleaned up for January meetings
 January.industry.meeting.data = function (current_year) {
-  
+  require(Cairo)
   if(!exists("current_year"))  current_year = year(now())
   
   #Create a folder to store all figures and tables
@@ -280,37 +280,46 @@ January.industry.meeting.data = function (current_year) {
   crablandings$cfa0[crablandings$cfa0=="cfa23"]="CFA23"
   crablandings$cfa0[crablandings$cfa0=="cfa24"]="CFA24"
   crablandings$cfa0[crablandings$cfa0=="cfa4x"]="CFA4X"
-  
+  crablandings$cfa0[crablandings$cfa0=="cfa4X"]="CFA4X"
   
   cfa=unique(crablandings$cfa0)
   
-  #create metafiles:
+  crablandings
+  zeros = as.data.frame(rbind(cbind(0, "NENS", 0, 0, 0, current_year),
+        cbind(0, "CFA24", 0, 0, 0, current_year),
+        cbind(0, "CFA4X", 0, 0, 0, current_year),
+        cbind(0, "CFA23", 0, 0, 0, current_year)))
+  names(zeros) = names(crablandings)
+  crablandings = rbind(zeros, crablandings)
   
-  for (c in cfa)   {
-    filename=paste(c,"_weekly_landing", ".emf", sep="")
-    win.metafile(file=file.path(wd, filename), width=10)
-    
-    toplot=crablandings[crablandings$cfa0==c,]
-    plot=barplot(toplot$mt, main= paste(toplot$year[1],toplot$cfa0[1],"Landings", sep=" "),cex.main=1.2, xlab= "Week of Season",
-                 ylab="Cumulative Landings (mt)", names.arg=toplot$weekfromstart, ylim=c(0,1.2*(max(toplot$mt))), col="deepskyblue")
-    #text(plot, 0, round(toplot$mt,0), cex=1, pos=3) # Can remove "#" if you want values shown on barplot
-    dev.off()
-    print(paste(filename, " created", sep=""))
-  }
-  
+  cols.are=c("blue", "red", "black","green4" )
+  icon.c = c(1, 2, 4, 0)
+
+  cl = dplyr::group_by(crablandings, cfa0) %>% dplyr::mutate(percent = (as.numeric(mt)/max(as.numeric(mt)))*100)
+  cl$weekfromstart = as.numeric(cl$weekfromstart)
+  xlab = 0:length(unique(cl$weekfromstart))
+   ggplot(cl, aes(x = weekfromstart, y = percent, colour = cfa0)) + 
+   geom_point(aes(shape=cfa0, color=cfa0), size = 1, stroke = .5) + 
+   scale_color_manual(values=cols.are) + scale_shape_manual(values=icon.c) +
+   geom_line(size = .5) + xlab("Week of Season") + ylab("Percent of Total Landings") + 
+     scale_x_continuous(labels = xlab, breaks = xlab) +
+  theme_bw() 
+   fn=file.path(wd, "weekly_landing.pdf")
+   ggsave(filename = fn, device = "pdf", width = 12, height = 8)
+   
   #create PDFs:
   
-  for (c in cfa)   {
-    filename=paste(c,"_weekly_landing", ".pdf", sep="")
-    pdf(file=file.path(wd, filename))
-    toplot=crablandings[crablandings$cfa0==c,]
-    plot=barplot(toplot$mt, main= paste(toplot$year[1],toplot$cfa0[1],"Landings", sep=" "),cex.main=1.2, xlab= "Week of Season",
-                 ylab="Cumulative Landings (mt)", names.arg=toplot$weekfromstart, ylim=c(0,1.2*(max(toplot$mt))), col="deepskyblue")
-    #text(plot, 0, round(toplot$mt,0), cex=1, pos=3) # Can remove "#" if you want values shown on barplot
-    dev.off()
-    print(paste(filename, " created", sep=""))
-  }
-  
+  # for (c in cfa)   {
+  #   filename=paste(c,"_weekly_landing", ".pdf", sep="")
+  #   pdf(file=file.path(wd, filename))
+  #   toplot=crablandings[crablandings$cfa0==c,]
+  #   plot=barplot(toplot$mt, main= paste(toplot$year[1],toplot$cfa0[1],"Landings", sep=" "),cex.main=1.2, xlab= "Week of Season",
+  #                ylab="Percent of Total Landings", names.arg=toplot$weekfromstart, ylim=c(0,1.2*(max(toplot$mt))), col="deepskyblue")
+  #   #text(plot, 0, round(toplot$mt,0), cex=1, pos=3) # Can remove "#" if you want values shown on barplot
+  #   dev.off()
+  #   print(paste(filename, " created", sep=""))
+  # }
+  # 
   # Calculate the percentage of spring landings for each area by year
   #--------------------------------------
   
@@ -337,33 +346,7 @@ January.industry.meeting.data = function (current_year) {
   
   spring=orderBy(~cfa, spring)
   spring=spring[order(spring$cfa),]
-  
-  # Save as Metafile
-  
-  filename=paste(iy, "_percent_spring_landings", ".emf", sep="")
-  emf(file=file.path(wd, filename), bg="white")
-  cf=unique(spring$cfa)
-  cf = cf[order(cf)]
-  cols=c("blue", "red", "black", "green4")
-  point=c(1,2,4,3)
-  
-  
-  plot(spring$year, spring$perc, type="n",
-       ylab="Percent of Total", xlab="Year", ylim=c(0,100), lty=1, col="red", pch=19, bg="white")
-  
-  for (y in 1:length(cf)) {
-    sprc=spring[spring$cfa==cf[y],]
-    lines(x=sprc$year, y=sprc$perc, col=cols[y], lwd=2 )
-    points(x=sprc$year, y=sprc$perc, col=cols[y], pch=point[y])
-    
-  }
-  legend("bottomright",paste(cf), bty="n", col=cols, pch=point, inset=c(0,.1))
-  legend("bottomright",paste(cf), bty="n", col=cols, lwd = 1.5, lty=1, inset=c(0,.1))
-  
-  dev.off()
-  print(paste(filename, " created", sep=""))
-  
-  
+  spring = spring[which(spring$cfa != "cfa4X"),]
   # Save as PDF
   
   filename=paste("percent_spring_landings.pdf", sep="")
@@ -752,7 +735,6 @@ January.industry.meeting.data = function (current_year) {
   ###Convert Positions for plotting
   
   load(file.path(wd, paste("logs.",iy,".rdata", sep="")))
-  
   logs$lat=logs$latitude/10000
   logs$lon=logs$longitude/10000
   
@@ -787,14 +769,6 @@ January.industry.meeting.data = function (current_year) {
   
   areas=c("cfa23", "cfa24zoom", "nens", "sens", "cfa4x")
   
-  # Create EMF's
-  for (a in areas){
-    filename=paste(a,"_past_two_years_fishing_positions.emf", sep="")
-    win.metafile(file=file.path(wd, filename), width=10)
-    fishmap(a = logs[iyear,], b= logs[iyear1,], area = a, cy = iy)
-    dev.off()
-    print(paste(filename, " created", sep=""))
-  }
   
   # Create PDF's
   
@@ -802,11 +776,11 @@ January.industry.meeting.data = function (current_year) {
     filename=paste(a,"_past_two_years_fishing_positions.pdf", sep="")
     
     if(any(c("cfa23", "cfa24zoom") %in% a)){
-      pdf(file=file.path(wd, filename), width = 6)
+      pdf(file=file.path(wd, filename), width = 12.5, height = 13)
     }else{
-      pdf(file=file.path(wd, filename), width = 8)
+      pdf(file=file.path(wd, filename), width = 10.2, height = 10)
     }
-    fishmap(a = logs[iyear,], b= logs[iyear1,], area = a, cy = iy)
+  fishmap(a = logs[iyear,], b= logs[iyear1,], area = a, cy = iy)
     dev.off()
     print(paste(filename, " created", sep=""))
   }
@@ -820,21 +794,13 @@ January.industry.meeting.data = function (current_year) {
   
   areas=c("cfa23", "cfa24zoom", "nens", "sens")
   
-  #Create EMF's
-  for (a in areas){
-    filename=paste(a,"_spring_fishing_positions", ".emf", sep="")
-    win.metafile(file=file.path(wd, filename))
-    seasonmap(a = logs[iyearspring,], b = logs[iyear1spring,], area = a, cy = iy, season = "Spring")
-    dev.off()
-  }
-  
   #Create PDF's
   for (a in areas){
     filename=paste(a,"_spring_fishing_positions", ".pdf", sep="")
     if(grepl("cfa", a)){
-      pdf(file=file.path(wd, filename), width = 6)
+      pdf(file=file.path(wd, filename), width = 12.5, height = 13)
     }else{
-      pdf(file=file.path(wd, filename), width = 8)
+      pdf(file=file.path(wd, filename), width = 10.2, height = 10)
     }
     seasonmap(a = logs[iyearspring,], b = logs[iyear1spring,], area = a, cy = iy, season = "Spring")
     dev.off()
@@ -844,22 +810,13 @@ January.industry.meeting.data = function (current_year) {
   
   areas=c("cfa23", "cfa24zoom", "nens", "sens")
   
-  # Create EMF's
-  for (a in areas){
-    filename=paste(a,"_summer_fishing_positions", ".emf", sep="")
-    win.metafile(file=file.path(wd, filename))
-    seasonmap(a = logs[iyearsum,], b = logs[iyear1sum,], area = a, cy = iy, season = "Summer")
-    dev.off()
-  }
-  
   # Create PDF's
   for (a in areas){
     filename=paste(a,"_summer_fishing_positions", ".pdf", sep="")
     if(grepl("cfa", a)){
-      pdf(file=file.path(wd, filename), width = 6)
-    }
-    else{
-      pdf(file=file.path(wd, filename), width = 8)
+      pdf(file=file.path(wd, filename), width = 12.5, height = 13)
+    }else{
+      pdf(file=file.path(wd, filename), width = 10.2, height = 10)
     }
     seasonmap(a = logs[iyearsum,], b = logs[iyear1sum,], area = a, cy = iy, season = "Summer")
     dev.off()
@@ -2068,43 +2025,92 @@ compute.vessels = function (x, var, index) {
 
 
 fishmap=function(a, b, area, cy){
+  
+  # a$X = round_any(a$X, .0166666666666667)
+  # a$Y = round_any(a$Y, .0166666666666667)
+  # b$X = round_any(b$X, .0166666666666667)
+  # b$Y = round_any(b$Y, .0166666666666667)
+  b$col = scales::alpha("yellow", .3)
+  a$col = scales::alpha("red", .3)
+  cnew = rbind(b,a)
+  rows <- sample(nrow(cnew))
+  cnew <- cnew[rows, ]
   makemap(x,area=area, title="Reported Fishing Positions", addlabels=F)
+
+  # all=as.EventData(cnew, projection= "LL")
+  # all$EID = 1:nrow(all)
+  # addPoints(data=all, cex = 3, col=all$col, pch=20)
   #last= logs[iyear1,]
-  last=as.EventData(b, projection= "LL")
-  addPoints(data=last, col="yellow", pch=20, cex=0.8)
-  #current= logs[iyear,]
-  current=as.EventData(a, projection= "LL")
-  addPoints(data=current, col="red", pch=20, cex=0.8)
-  coverup(area=area)
-  legend("bottomright", paste(c(cy-1, cy)), pch=20, col=c("yellow","red"), bty="o", bg="grey75", pt.cex=1.5)
+   last=as.EventData(b, projection= "LL")
+   addPoints(data=last, cex = 3, col="yellow", pch=20)
+   current= logs[iyear,]
+  
+   current=as.EventData(a, projection= "LL")
+  addPoints(data=current, cex = 3, col=scales::alpha("red", .2), pch=20)
+   coverup(area=area)
+   legend("bottomright", paste(c(cy-1, cy)), pch=20, col=c("yellow","red"), bty="o", bg="grey75", pt.cex=1.5)
   
 }
 
 seasonmap=function(a, b, area, cy, season){
+  # a$X = round_any(a$X, .0166666666666667)
+  # a$Y = round_any(a$Y, .0166666666666667)
+  # b$X = round_any(b$X, .0166666666666667)
+  # b$Y = round_any(b$Y, .0166666666666667)
+
+  b$col = scales::alpha("yellow", .3)
+  a$col = scales::alpha("red", .3)
+  cnew = rbind(b,a)
+  rows <- sample(nrow(cnew))
+  cnew <- cnew[rows, ]
   
   makemap(x,area=area, title=paste(season, " Fishing Positions", sep = ""), addlabels=F)
-  
+  # all=as.EventData(cnew, projection= "LL")
+  # all$EID = 1:nrow(all)
+  # addPoints(data=all, cex = 3, col=all$col, pch=20)
   last=as.EventData(b, projection= "LL")
-  addPoints(data=last, col="yellow", pch=20, cex=0.8)
-  current=as.EventData(a, projection= "LL")
-  addPoints(data=current, col="red", pch=20, cex=0.8)
+  addPoints(data=last, cex = 3, col="yellow", pch=20)
   
+  current=as.EventData(a, projection= "LL")
+  addPoints(data=current, cex = 3, col=scales::alpha("red", .2), pch=20)
+
   coverup(area=area)
   legend("bottomright", paste(c(cy-1, cy)), pch=20, col=c("yellow","red"), bty="o", bg="grey75", pt.cex=1.5)
 }
 softbyarea=function(dta, areastr){
+
+  rows <- sample(nrow(dta))
+  dta <- dta[rows, ]
   #makemap(dta, area=areastr, addlabels=F,title=paste(dta$year[1]))
   makemap(dta, area=areastr, addlabels=F)
-  if(nrow(dta[dta$color=="green4",])>0)addPoints(data=dta[dta$color=="green4",], col= "black", bg="green4", pch=21)
-  if(nrow(dta[dta$color=="yellow",])>0)addPoints(data=dta[dta$color=="yellow",], col= "black", bg="yellow", pch=21)
-  if(nrow(dta[dta$color=="red",])>0)addPoints(data=dta[dta$color=="red",], col= "black", bg="red", pch=21)
-  
-  points(x=-59.5, y=47.05,  col="black", bg="green4", pch=21, cex=1.1) # add legend like key
-  text("0-10% Soft", x= -59.45, y=47.05, font=1, cex=.85, pos=4, col="white")
-  points(x=-59.5, y=47,  col="black", bg="yellow", pch=21, cex=1.1) # add legend like key
-  text("10-20% Soft", x= -59.45, y=47, font=1, cex=.85, pos=4, col="white")
-  points(x=-59.5, y=46.95,  col="black", bg="red", pch=21, cex=1.1) # add legend like key
-  text("20+ % Soft", x= -59.45, y=46.95, font=1, cex=.85, pos=4, col="white")
+  if(nrow(dta[dta$color=="green4",])>0)addPoints(data=dta[dta$color=="green4",], cex = 3, col= "black", bg="green4", pch=21)
+  if(nrow(dta[dta$color=="yellow",])>0)addPoints(data=dta[dta$color=="yellow",], cex = 3, col= "black", bg="yellow", pch=21)
+  if(nrow(dta[dta$color=="red",])>0)addPoints(data=dta[dta$color=="red",], cex = 3, col= "black", bg="red", pch=21)
+  if(areastr == "cfa24zoom"){
+    points(x=-62.4, y=44.05,  col="black", bg="green4", pch=21, cex=1.1) # add legend like key
+    text("0-10% Soft", x= -62.35, y=44.05, font=1, cex=.85, pos=4, col="white")
+    points(x=-62.4, y=44,  col="black", bg="yellow", pch=21, cex=1.1) # add legend like key
+    text("10-20% Soft", x= -62.35, y=44, font=1, cex=.85, pos=4, col="white")
+    points(x=-62.4, y=43.95,  col="black", bg="red", pch=21, cex=1.1) # add legend like key
+    text("20+ % Soft", x= -62.35, y=43.95, font=1, cex=.85, pos=4, col="white")
+  }
+  if(areastr == "cfa23zoom"){
+    points(x=-58.22, y=45.95,  col="black", bg="green4", pch=21, cex=1.1) # add legend like key
+    text("0-10% Soft", x= -58.18, y=45.95, font=1, cex=.85, pos=4, col="white")
+    points(x=-58.22, y=45.9,  col="black", bg="yellow", pch=21, cex=1.1) # add legend like key
+    text("10-20% Soft", x= -58.18, y=45.9, font=1, cex=.85, pos=4, col="white")
+    points(x=-58.22, y=45.85,  col="black", bg="red", pch=21, cex=1.1) # add legend like key
+    text("20+ % Soft", x= -58.18, y=45.85, font=1, cex=.85, pos=4, col="white")
+  }
+  if(areastr == "nens"){
+    points(x=-59.5, y=47.05,  col="black", bg="green4", pch=21, cex=1.1) # add legend like key
+    text("0-10% Soft", x= -59.45, y=47.05, font=1, cex=.85, pos=4, col="white")
+    points(x=-59.5, y=47,  col="black", bg="yellow", pch=21, cex=1.1) # add legend like key
+    text("10-20% Soft", x= -59.45, y=47, font=1, cex=.85, pos=4, col="white")
+    points(x=-59.5, y=46.95,  col="black", bg="red", pch=21, cex=1.1) # add legend like key
+    text("20+ % Soft", x= -59.45, y=46.95, font=1, cex=.85, pos=4, col="white")
+  }
+ 
 }
 
 
