@@ -269,7 +269,7 @@ The modelled, post-fishery, fishable biomass (Figure 6) of Snow Crab in `r year.
 
 
 ```{r, out.width=480 }
-  loc = file.path( file.path( SCD, "modelled", "tesselation", "fishery_model_results" ) )
+  loc = file.path( file.path( SCD, "modelled", "1999_present", "fishery_model_results" ) )
   fn = file.path( loc, "biomass.timeseries.png" )
   include_graphics( fn )
 ```
@@ -323,7 +323,7 @@ The `r year.assessment` S-ENS fishing mortality (F) is estimated to have been 0.
 The 4X fishing mortality (F) in `r year_previous`/`r year.assessment` was XX (Figure 10). Generally, in 4X realized exploitation rates are likely higher, since the computed exploitation rates incorporate biomass from throughout the 4X area and not just the fishery grounds.
 
 ```{r, out.width=480 }
-  include_graphics( file.path( SCD, "modelled", "tesselation", "fishery_model_results", "fishingmortality.timeseries.png" ) )
+  include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "fishingmortality.timeseries.png" ) )
 ```
 
 *Figure 10. Time-series of fishing mortality from the fishery model for N-ENS, S-ENS, and 4X, respectively. Posterior density distributions are presented in gray, with the darkest line being the median with  95% Confidence Interval shading. The solid(red) line is the estimated fishing mortality at maximum sustainable yield and the stippled (black) line is the 20% harvest rate.*
@@ -469,7 +469,7 @@ The estimates of FMSY {and 95% CI} are:
 
 
 ```{r, out.width=480 }
-  include_graphics( file.path( SCD, "modelled", "tesselation", "fishery_model_results", "hcr.default.png" ) )
+  include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "hcr.default.png" ) )
 ```
 
 *Figure 15. Fishing mortality and fishable biomass in the context of Harvest Control Rules for N-ENS (top), S-ENS (middle), and 4X (bottom). The large red dot indicates most recent year.*
@@ -496,7 +496,7 @@ The estimates of FMSY {and 95% CI} are:
 \
 
 ```{r, out.width=280 }
-  loc = file.path( SCD, "modelled", "tesselation", "predicted.biomass.densitites" )
+  loc = file.path( SCD, "modelled", "1999_present", "predicted.biomass.densitites" )
   fn1 = file.path( loc, paste( "biomass", year_previous, "png", sep=".") )
   fn2 = file.path( loc, paste( "biomass", (year.assessment  ), "png", sep=".") )
   toplot = NULL
