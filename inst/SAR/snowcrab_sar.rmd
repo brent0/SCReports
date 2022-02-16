@@ -95,7 +95,7 @@ require(aegis)
   male = 0
   odb = observer.db("odb")
   setDT(odb)
-  odb = odb[ which( odb$sex==male & odb$cw >= 95 & odb$cw < 170 & odb$prodcd_id=="0" & is.finite(odb$shell) ) ,]  # commerical sized crab only
+  odb = odb[ which( odb$sex==male & odb$cw >= 44 & odb$cw < 170 & odb$prodcd_id=="0" & is.finite(odb$shell) ) ,]  # commerical sized crab only
   odb$region = NA
   for ( reg in c("cfanorth", "cfasouth", "cfa4x")) {
     r = polygon_inside(x=odb, region=aegis.polygons::polygon_internal_code(reg), planar=FALSE)
@@ -281,9 +281,9 @@ The modelled, post-fishery, fishable biomass (Figure 6) of Snow Crab in `r year.
 
 
 ```{r, out.width=480 }
-  loc = file.path( file.path( SCD, "modelled", "1999_present", "fishery_model_results" ) )
-  fn = file.path( loc, "biomass.timeseries.png" )
-  include_graphics( fn )
+  #loc = file.path( file.path( SCD, "modelled", "1999_present", "fishery_model_results" ) )
+  #fn = file.path( loc, "biomass.timeseries.png" )
+  #include_graphics( fn )
 ```
 
 *Figure 6. Time series of fishable biomass. The fishable biomass index is shown in red dashed lines. The q-corrected (model catchability coefficient), fishable biomass index is shown in green dashed lines. Posterior mean fishable biomass estimates from the logistic model are shown in blue stippled lines. Density distribution of posterior fishable biomass estimates are presented with 95% Confidence Interval (grey).*
@@ -347,6 +347,13 @@ In all areas, there was substantial recruitment of female crab into the mature (
 97.5% 0.274232 0.302745 0.442938
 >       ( qs = apply(  res$mcmc$F[,NN-1,], 2, mean ) )
 [1] 0.194404 0.209676 0.227958
+exploitationrate_fishingmortality = function(er=NULL, fm=NULL) {
++     
++     
++     
++     if (is.null(fm)) return( -log(1-er) )
++     if (is.null(er)) return( 1-exp(-fm) )
++ }
 
 -->
 
@@ -357,14 +364,14 @@ The `r year.assessment` S-ENS fishing mortality (F) is estimated to have been 0.
 The 4X fishing mortality (F) in `r year_previous`/`r year.assessment` was XX (Figure 10). Generally, in 4X realized exploitation rates are likely higher, since the computed exploitation rates incorporate biomass from throughout the 4X area and not just the fishery grounds.
 
 ```{r, out.width=480 }
-  include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "fishingmortality.timeseries.png" ) )
+  #include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "fishingmortality.timeseries.png" ) )
 ```
 
 *Figure 10. Time-series of fishing mortality from the fishery model for N-ENS, S-ENS, and 4X, respectively. Posterior density distributions are presented in gray, with the darkest line being the median with  95% Confidence Interval shading. The solid(red) line is the estimated fishing mortality at maximum sustainable yield and the stippled (black) line is the 20% harvest rate.*
 \
 
 ```{r, out.width=480 }
-  include_graphics( file.path( SCD, "assessments", year.assessment, "timeseries", "temperature_bottom.pdf") )
+ # include_graphics( file.path( SCD, "assessments", year.assessment, "timeseries", "temperature_bottom.pdf") )
 ```
 
 *Figure 11. Annual variations in bottom temperature observed in September.*
@@ -503,7 +510,7 @@ The estimates of FMSY {and 95% CI} are:
 
 
 ```{r, out.width=480 }
-  include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "hcr.default.png" ) )
+  #include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "hcr.default.png" ) )
 ```
 
 *Figure 15. Fishing mortality and fishable biomass in the context of Harvest Control Rules for N-ENS (top), S-ENS (middle), and 4X (bottom). The large red dot indicates most recent year.*
