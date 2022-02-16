@@ -220,6 +220,10 @@ Carapace Condition (CC) defines the approximate age (since terminal moult) of th
 
 - Commercial catches of soft-shelled (newly moulted) Snow Crab were `r cc_soft_nens`% in N-ENS, `r cc_soft_sens`% in S ENS and `r cc_soft_4x`% in CFA 4X (incomplete season) for `r year.assessment`. In `r year_previous`, it was `r cc_soft_nens_p`%, `r cc_soft_sens_p`% and `r cc_soft_4x_p`%, respectively. Higher soft-shell handling results in higher unnecessary mortality.
 
+ <!--  
+2021 results:
+
+-->
 
 To update {
 >In N-ENS, CC1 and CC2 crab represented `r cc_soft_nens`% of the observed catch, relative to `r cc_soft_nens_p`% in `r year_previous` (Figure 4).  CC5 levels remain negligible. In S-ENS, the occurrence of CC1 and CC2 crab was `r cc_soft_sens`% relative to `r cc_soft_sens_p`% in `r year_previous` (Figure 4).Senescent (CC5) crab represented less than 1% of the total observed catch and survey catches in all areas.
@@ -246,6 +250,23 @@ To update {
 ### Stock Trends and Current Status
 
 #### Fishable Biomass 
+ <!--  
+2021 results:
+>       # densities of biomass estimates for the year.assessment
+>       ( qs = apply(  res$mcmc$B[,NN,], 2, quantile, probs=c(0.025, 0.5, 0.975) ) )
+         [,1]     [,2]       [,3]
+2.5%  1.65790  4.72276 -0.0578404
+50%   2.84379 14.53740  0.1678450
+97.5% 4.20638 36.54831  0.4958738
+
+>    # densities of biomass estimates for the previous year
+>       ( qs = apply(  res$mcmc$B[,NN-1,], 2, quantile, probs=c(0.025, 0.5, 0.975) ) )
+         [,1]    [,2]     [,3]
+2.5%  2.64461 22.4698 0.136532
+50%   3.82027 34.8777 0.400803
+97.5% 6.03634 58.8165 0.718886
+
+-->
 
 The fishable biomass (Figure 5, Map 3) is defined as snow crab that are male, mature, and larger than 95 mm CW. Geometric mean fishable biomass density is shown in Figure 5 (Map 3). Estimation of a fishable biomass index was conducted using using conditional auto-regressive spatio-temporal models (Choi 2020). This approach models snow crab numerical abundance and mean size with environmental (depth, substrate, temperature) and biological factors (species composition) as covariates to estimate biomass. This index is coupled with a logistic population dynamics model (*fishery model*) to determine fishable biomass and relevant biological reference points (i.e., carrying capacity and fishing mortality at maximum sustainable yield, or F~MSY~) associated with the harvest control rules of the Snow Crab fishery.
 
@@ -260,9 +281,9 @@ The modelled, post-fishery, fishable biomass (Figure 6) of Snow Crab in `r year.
 
 
 ```{r, out.width=480 }
-  #loc = file.path( file.path( SCD, "modelled", "1999_present", "fishery_model_results" ) )
-  #fn = file.path( loc, "biomass.timeseries.png" )
-  #include_graphics( fn )
+  loc = file.path( file.path( SCD, "modelled", "1999_present", "fishery_model_results" ) )
+  fn = file.path( loc, "biomass.timeseries.png" )
+  include_graphics( fn )
 ```
 
 *Figure 6. Time series of fishable biomass. The fishable biomass index is shown in red dashed lines. The q-corrected (model catchability coefficient), fishable biomass index is shown in green dashed lines. Posterior mean fishable biomass estimates from the logistic model are shown in blue stippled lines. Density distribution of posterior fishable biomass estimates are presented with 95% Confidence Interval (grey).*
@@ -306,6 +327,28 @@ In all areas, there was substantial recruitment of female crab into the mature (
 \
 
 #### Fishing Mortality
+ <!--  
+2021 results:
+>   # densities of F in assessment year
+>       ( qs = apply(  res$mcmc$F[,NN,], 2, quantile, probs=c(0.025, 0.5, 0.975) ) )
+          [,1]     [,2]      [,3]
+2.5%  0.194258 0.205049  0.188788
+50%   0.275465 0.452458  0.478635
+97.5% 0.434372 1.015674 13.815500
+
+>       ( qs = apply(  res$mcmc$F[,NN,], 2, mean ) )
+[1] 0.293375 0.534447 1.728222
+
+  # densities of F in previous year
+>       ( qs = apply(  res$mcmc$F[,NN-1,], 2, quantile, probs=c(0.025, 0.5, 0.975) ) )
+          [,1]     [,2]     [,3]
+2.5%  0.129478 0.126699 0.100604
+50%   0.197556 0.205212 0.173814
+97.5% 0.274232 0.302745 0.442938
+>       ( qs = apply(  res$mcmc$F[,NN-1,], 2, mean ) )
+[1] 0.194404 0.209676 0.227958
+
+-->
 
 The `r year.assessment` N-ENS fishing mortality (F) is estimated to have been 0.14 (exploitation rate 0.13), a decrease from 0.22 in `r year_previous` (Figure 10). 
 
@@ -314,17 +357,17 @@ The `r year.assessment` S-ENS fishing mortality (F) is estimated to have been 0.
 The 4X fishing mortality (F) in `r year_previous`/`r year.assessment` was XX (Figure 10). Generally, in 4X realized exploitation rates are likely higher, since the computed exploitation rates incorporate biomass from throughout the 4X area and not just the fishery grounds.
 
 ```{r, out.width=480 }
-  #include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "fishingmortality.timeseries.png" ) )
+  include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "fishingmortality.timeseries.png" ) )
 ```
 
 *Figure 10. Time-series of fishing mortality from the fishery model for N-ENS, S-ENS, and 4X, respectively. Posterior density distributions are presented in gray, with the darkest line being the median with  95% Confidence Interval shading. The solid(red) line is the estimated fishing mortality at maximum sustainable yield and the stippled (black) line is the 20% harvest rate.*
 \
 
 ```{r, out.width=480 }
-  include_graphics( file.path( SCD, "assessments", year.assessment, "timeseries", "survey", "t.pdf") )
+  include_graphics( file.path( SCD, "assessments", year.assessment, "timeseries", "temperature_bottom.pdf") )
 ```
 
-*Figure 11. Annual variations in bottom temperature observed during the Snow Crab survey. The horizontal (black) line indicates the long-term, median temperature within each subarea. Error bars represent standard errors.*
+*Figure 11. Annual variations in bottom temperature observed in September.*
 \
 
 ### Ecosystem Considerations
@@ -433,7 +476,7 @@ Many existing measures and fishing practices in the Scotian Shelf Snow Crab fish
 
 In addition to the above, **Harvest control rules** are used to guide harvest strategies (DFO 2013; Figures 14 & 15). More specifically, the state of the fishery relative to the following "reference points" are used to determine overall strategy. In terms of fishable biomass, Lower and Upper Stock Reference (LSR, USR) are 25% and 50% of carrying capacity delineate "critical", "cautious" and "healthy" zones. In terms of exploitation rates, the Removal Reference (RR) is exploitation rate that we try not to cross; it is defined in terms of the fishing mortality associated with Maximum Sustainable Yield (FMSY).    
 
-The operational Target Removal Reference (TRR) changes depending upon the "zone" in which a lands. When in the "healthy zone", the TRR is between 10% to 30% of the fishable biomass (or fishing mortality of 0.11 and 0.36, respectively). In the "cautious zone",  the TRR is between 0% to 20% of the fishable biomass (or fishing mortality of o and 0.22, respectively). In the "critical zone", fishery closure until recovery (at a minimum, until FB > LSR). Overall biological and ecosystem (secondary) considerations as recruitment, spawning stock (female) biomass, size structure, sex ratios and environmental and ecosystem conditions, provide additional guidance within each range.
+The operational Target Removal Reference (TRR) changes depending upon the "zone" in which a lands. When in the "healthy zone", the TRR is between 10% to 30% of the fishable biomass (or fishing mortality of 0.11 and 0.36, respectively). In the "cautious zone",  the TRR is between 0% to 20% of the fishable biomass (or fishing mortality of 0 and 0.22, respectively). In the "critical zone", fishery closure until recovery (at a minimum, until FB > LSR). Overall biological and ecosystem (secondary) considerations as recruitment, spawning stock (female) biomass, size structure, sex ratios and environmental and ecosystem conditions, provide additional guidance within each range.
 \
 
 ```{r, out.width=480 }
@@ -446,21 +489,21 @@ The operational Target Removal Reference (TRR) changes depending upon the "zone"
 
 The current estimates of "carrying capacity" for the fishable biomass of Snow Crab are {and 95% CI}:
 
-- N-ENS: 6.77 {5.34, 8.52} kt
-- S-ENS: 76.3 {64.3, 91.3} kt
-- 4X: 2.12 {1.57, 2.78} kt
+- N-ENS: 4.8 {3.7, 6.6} kt
+- S-ENS: 49.3 {39.3, 68.0} kt
+- 4X: 1.5 {1.1, 2.0} kt
 \
 
 The estimates of FMSY {and 95% CI} are:
 
-- N-ENS: 0.398 {0.248, 0.572}
-- S-ENS: 0.346 {0.224, 0.51}
-- 4X: 0.361 {0.2, 0.543}
+- N-ENS: 0.48 {0.41, 0.58}
+- S-ENS: 0.52 {0.41, 0.59}
+- 4X: 0.47 {0.40, 0.58}
 \
 
 
 ```{r, out.width=480 }
-  #include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "hcr.default.png" ) )
+  include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "hcr.default.png" ) )
 ```
 
 *Figure 15. Fishing mortality and fishable biomass in the context of Harvest Control Rules for N-ENS (top), S-ENS (middle), and 4X (bottom). The large red dot indicates most recent year.*
