@@ -2,26 +2,23 @@
 title: "Snow crab assessment"
 author: "Snow crab group"
 date: "Document version timestamp `r format(Sys.time(), '%d %B, %Y')`"
-always_allow_html: true
-output: 
+output:
   word_document:
-    reference_docx: media/SRR-RS2021-eng.docx
-# other outputs: html_document, pdf_document, ioslides_presentation, powerpoint_presentation
-bibliography: media/snowcrab.bib 
+    reference_docx: media/SRR-RS2022-eng.docx
+  pdf_document: default
+always_allow_html: yes
+bibliography: media/snowcrab.bib
 csl: media/csas.csl
-# csl is citation style download from: https://www.zotero.org/styles
-# csas.csl copied from "csasdown"
 params:
-  year.assessment: 2020
-  bio.data.dir: "/home/jae/bio.data"
-
+  year.assessment: 2021
+  bio.data.dir: /home/jae/bio.data
 ---
 
 
 <!--- set up R-environment --->
 ```{r setup, include=FALSE}
   rmd_dir = getwd()
-
+require(aegis)
   if (0) {
     # To create the msword document from within R run this:
     setwd( file.path( project.codedirectory("SCReports"), "inst", "SAR" ) )  # change to where the rmd file lives
@@ -45,7 +42,7 @@ params:
 
   year.assessment = params$year.assessment
   year_previous = year.assessment - 1
-  
+  year_2019=year.assessment - 2
   p = bio.snowcrab::load.environment( year.assessment=year.assessment )
   SCD = project.datadirectory("bio.snowcrab")
 
@@ -128,15 +125,15 @@ params:
 | **Context:**     |  
 |:--- | 
 | *Snow Crab (Chionoecetes opilio, O. Fabricius) have been a dominant macro-invertebrate in the Scotian Shelf Ecosystem (SSE) since the decline of the groundfish. They are observed in large numbers in deep, soft-bottom substrates ranging from 60 to 280 m and at temperatures generally less than 6°C. The SSE Snow Crab are in the southern-most extreme of their spatial distribution in the Northwest Atlantic.*  \
-*The fishery has been in existence since the early 1970s in Nova Scotia. The management of the Snow Crab fisheries in the SSE was initially based on effort controls (season, license, trap limits) from 1982 to 1993 with harvesting during June-November of hard-shelled males larger than 95 mm Carapace Width. Additional management measures were introduced from 1994 to 1999: individual boat quotas, Total Allowable Catches (TACs), 100% dockside monitoring, mandatory logbooks and at-sea monitoring by certified observers. In 2005, many Crab Fishing Areas (CFAs) and subareas were merged with the resulting divisions being North-Eastern Nova Scotia (N-ENS) (CFAs 20-22), South-Eastern Nova Scotia (S-ENS) (CFAs 23, 24), and 4X (Figure 1). Spring fishing efforts in N-ENS and S-ENS now represent a large portion of overall landings.* \
+*The fishery has been in existence since the early 1970s in Nova Scotia. The management of the Snow Crab fisheries in the SSE was initially based on effort controls (season, license, trap limits) from 1982 to 1993 with harvesting during June-November of hard-shelled males larger than 95 mm Carapace Width. Additional management measures were introduced from 1994 to 1999: individual boat quotas, Total Allowable Catches (TACs), 100% dockside monitoring, mandatory logbooks and at-sea monitoring by certified observers. In 2005, many Crab Fishing Areas (CFAs) and subareas were merged with the resulting divisions being North-Eastern Nova Scotia (N-ENS) (CFAs 20-22), South-Eastern Nova Scotia (S-ENS) (CFAs 23, 24), and 4X (Figure 1). Spring fishing efforts in N-ENS and S-ENS now represent a large portion of overall landings. There was no survey conducted in 2020 due to COVID-19 restrictions, as well as reduced At-Sea-Observer coverage in 2020 and 2021.* \
 *In support of the fishery, Fisheries and Oceans Canada (DFO) Maritimes Fisheries Management requests from DFO Science an annual assessment of resource status. An assessment of the status of 4VWX Snow Crab is based on fishery independent surveys using indicators of abundance, reproductive potential, recruitment, and  exploitation rates. Ecosystem and environmental indicators are also incorporated into the assessment. Commercial catch  rates and other fishery statistics are reported.* \
-*This Science Advisory Report is from the February 27, 2020,  Stock Assessment of Scotian  Shelf Snow Crab. Additional  publications from this process will be posted on the  [*[Fisheries and Oceans Canada (DFO) Science Advisory  Schedule]{.ul}*](http://www.isdm-gdsi.gc.ca/csas-sccs/applications/events-evenements/index-eng.asp) as they become available.* |
+*This Science Advisory Report is from the regional Science Response Process on the Stock Status Update of Scotian Shelf Snow crab, held February 24, 2022. Additional  publications from this process will be posted on the  [*[Fisheries and Oceans Canada (DFO) Science Advisory  Schedule]{.ul}*](http://www.isdm-gdsi.gc.ca/csas-sccs/applications/events-evenements/index-eng.asp) as they become available.* |
 | <!-- -->    |  
 
 
 ## SUMMARY
 
-- Landings (t) in `r year.assessment` were `r l_nens` in N-ENS, `r l_sens` in S-ENS and `r l_4x` in CFA 4X, respectively, representing a change of `r dt_l_nens` %, `r dt_l_sens` % and `r dt_l_4x` % (incomplete season), respectively, relative to `r year_previous`. Total Allowable Catches (TAC) were `r tac_nens` t, `r tac_sens` t and `r tac_4x`, respectively. 
+- Landings (t) in `r year.assessment` were `r l_nens` in N-ENS, `r l_sens` in S-ENS and `r l_4x` in CFA 4X, respectively, representing a change of `r dt_l_nens` %, `r dt_l_sens` % and `r dt_l_4x` % (incomplete season), respectively, relative to `r year_previous`. Total Allowable Catches (TAC) were `r tac_nens` t, `r tac_sens` t and `r tac_4x` t, respectively. 
 
 - Non-standardized catch rates (kg/trap haul) in `r year.assessment` were `r c_nens` in N-ENS, `r c_sens` in S-ENS and `r c_4x` in CFA 4X. Relative to `r year_previous`, this represents a change of `r dt_c_nens`%, `r dt_c_sens`% and `r dt_c_4x`% (incomplete season).
 
@@ -146,7 +143,7 @@ params:
 
 - Substantial recruitment of female Snow Crab into the mature (egg-bearing) segment of the population occurred from 2016-2018 and egg/larval production is expected to be high, though decreasing, as the numeric densities of mature female Snow Crab are now declining.
 
-- Bycatch of non-target species is extremely low (<0.4%) in all Snow Crab fishing areas.
+- Bycatch of non-target species is extremely low (<0.4%) in all Snow Crab fishing areas. 
 
 - Based on stomach sampling, Atlantic Halibut, Atlantic Wolffish, Thorny Skate, and other skate species appear to be the predominant predators of Snow Crab on the Scotian Shelf. Increased Halibut biomass lowers both the abundance and reproductive potential of Snow Crab on the Scotian Shelf.
  
@@ -167,7 +164,7 @@ Snow Crab (*Chionoecetes opilio*, O. Fabricius) is a subarctic species with a di
 
 The Snow Crab fishery in eastern Canada began in 1960 with incidental bycatches by groundfish draggers near Gaspé, Quebec. Its development was slow until the 1980s, when it began expanding rapidly to become one of the largest fisheries in Canada in terms of landings and landed value. On the Scotian Shelf, the fishery has been in existence since the early 1970s. The Scotian Shelf Snow Crab fishery lands only males with CW ≥ 95 mm. There is also a concerted effort to avoid areas of newly moulted (soft-shelled) crab and to discard immature males. The North-Eastern Nova Scotia (N-ENS) and South-Eastern Nova Scotia (S- ENS) fisheries are conducted within a calendar year. The 4X fishery is conducted over a fall to winter fishing season spanning calendar years. Total landings increased to record-levels of approximately 10,000 tonnes (t) each year in the early 2000s and increased further to approximately 14,000 t in 2010 (Figure 2). In 2005, many Crab Fishing Areas (CFAs) and subareas were merged, with the resulting divisions being N-ENS (formerly CFAs 20-22), S-ENS (CFAs 23 and 24), and 4X (Figure 1).
 
-Fishery catch rates are biased indicators of Snow Crab abundance. This is because spatial and temporal distribution of Snow Crab and fishing effort are not the same. In particular, catch rates depend upon seasonality, bottom temperatures, food availability, reproductive behavior, substrate/shelter availability, relative occurrence of soft and immature crab, species composition, fisher experience, bait type, soak time, and ambient currents. Catch rates have not been adjusted for these influences. As such catch rates, are used primarily as a measure of fishery performance. 
+Fishery catch rates are biased indicators of Snow Crab abundance. This is because spatial and temporal distribution of Snow Crab and fishing effort are not the same. In particular, catch rates depend upon seasonality, bottom temperatures, food availability, reproductive behavior, substrate/shelter availability, relative occurrence of soft and immature crab, species composition, fisher experience, bait type, soak time, and ambient currents. Catch rates have not been adjusted for these influences. As such, catch rates are used primarily as a measure of fishery performance. 
 
 Landings in `r year.assessment` were `r l_nens` t in for N-ENS, `r l_sens` t in S-ENS and `r l_4x` t in CFA 4X (incomplete season), representing a change of `r dt_l_nens`%, `r dt_l_sens`% and  `r dt_l_4x`% (incomplete season), respectively, relative to `r year_previous` (Figure 2, Tables 1-3). Total Allowable Catches for `r year.assessment` were `r tac_nens` t, `r tac_sens` t and `r tac_4x` t in N-ENS, S-ENS and 4X, respectively. 
 
@@ -178,34 +175,28 @@ Landings in `r year.assessment` were `r l_nens` t in for N-ENS, `r l_sens` t in 
   fisherydata_summary( FD=FD, toget="timeseries_landings" ) 
 ```
 
-*Figure 2. Temporal variations in the landings (t) of Snow Crab on the Scotian Shelf. The landings follow the Total Allowable Catches (TACs) with little deviation, so the TACs are not shown. For 4X, the year refers to the starting year of the season. For NENS and 4X, the values are multiplied by 5 to be on a comparable scale.*
+*Figure 2. Temporal variations in the landings (t) of Snow Crab on the Scotian Shelf. The landings follow the Total Allowable Catches (TACs) with little deviation, so the TACs are not shown. For 4X, the year refers to the starting year of the season. For N-ENS and 4X, the values are multiplied by 5 to be on a comparable scale.*
 
 </br>
 
+*Table 1. Summary of the Snow Crab fishery in North-Eastern Nova Scotia. The units for TAC and Landings are  tons; for CPUE, kg/ht; and for Effort 1000 trap hauls.* 
 ```{r fishery_table_nens, echo=FALSE }
 kable(dt[n,], format="simple", row.names=FALSE, align="ccccc" ) 
 ```
 
-*Table 1. Summary of the Snow Crab fishery in North-Eastern Nova Scotia. The units for TAC and Landings are  tons; for CPUE, kg/ht; and for Effort 1000 trap hauls.* 
-
-
 </br>
 
-
+*Table 2. Summary of the Snow Crab fishery in South-Eastern Nova Scotia. The units for TAC and Landings are  tons; for CPUE, kg/ht; and for Effort 1000 trap hauls.*
 ```{r fishery_table_sens, echo=FALSE }
 kable(dt[s,], format="simple", row.names=FALSE, align="ccccc" )
 ```
 
-*Table 2. Summary of the Snow Crab fishery in South-Eastern Nova Scotia. The units for TAC and Landings are  tons; for CPUE, kg/ht; and for Effort 1000 trap hauls.*
-
-
 </br>
 
+*Table 3. Summary of the Snow Crab fishery in North-Eastern Nova Scotia. The units for TAC and Landings are  tons; for CPUE, kg/ht; and for Effort 1000 trap hauls. There were no landings or TACs in 2018/2019 due multiple indications of low abundance.*
 ```{r fishery_table_4x, echo=FALSE }
 kable(dt[x,], format="simple", row.names=FALSE, align="ccccc" )
 ```
-
-*Table 3. Summary of the Snow Crab fishery in North-Eastern Nova Scotia. The units for TAC and Landings are  tons; for CPUE, kg/ht; and for Effort 1000 trap hauls. There were no landings or TACs in 2018/2019 due multiple indications of low abundance.*
 
 </br>
 
@@ -269,9 +260,9 @@ The modelled, post-fishery, fishable biomass (Figure 6) of Snow Crab in `r year.
 
 
 ```{r, out.width=480 }
-  loc = file.path( file.path( SCD, "modelled", "1999_present", "fishery_model_results" ) )
-  fn = file.path( loc, "biomass.timeseries.png" )
-  include_graphics( fn )
+  #loc = file.path( file.path( SCD, "modelled", "1999_present", "fishery_model_results" ) )
+  #fn = file.path( loc, "biomass.timeseries.png" )
+  #include_graphics( fn )
 ```
 
 *Figure 6. Time series of fishable biomass. The fishable biomass index is shown in red dashed lines. The q-corrected (model catchability coefficient), fishable biomass index is shown in green dashed lines. Posterior mean fishable biomass estimates from the logistic model are shown in blue stippled lines. Density distribution of posterior fishable biomass estimates are presented with 95% Confidence Interval (grey).*
@@ -282,7 +273,7 @@ The modelled, post-fishery, fishable biomass (Figure 6) of Snow Crab in `r year.
 
 Quantitative determination of recruitment levels into the fishable biomass is confounded by a number of factors. These include terminal moult (the timing offset of moulting in spring and the survey in the fall), the inability to age crab, and the inability to predict the age that male crab will terminally moult. Based on size-frequency histograms of the male Snow Crab population, moderate internal recruitment (from within the same fishing area) to the fishery is expected for the next year in N-ENS and S-ENS (Figure 7). Internal recruitment in 4X for the next year is expected to be minimal. Immigration of crab from outside a given area can represent recruitment to its fishery. This type of recruitment is unreliable due to the episodic nature of immigration. Erratic temperature fields in 4X create strong uncertainties for future recruitment.
 
-In the survey, the presence of small, immature, male Snow Crab in N-ENS and S-ENS (Figure 7), spanning almost all size ranges (30-95 mm CW), suggests that internal recruitment to the fishery is probable for the next 3-4 years, though potentially at decreasing rates due to the lower numeric densities of smaller animals. High numerical densities at the smallest size range (\<30mm), in all areas, are a promising sign of potential long-term recruitment. The survival of small crab is essential for the fishery to realize this recruitment. Any mortality (e.g. predation, environmental, and disease), emigration, or sub-legal-size terminal moulting will impact this recruitment potential. Based on size-frequency distributions from the trawl survey, 4X shows limited potential for internal recruitment to the fishery for the next 2-3 years.
+In the survey, the presence of small, immature, male Snow Crab in N-ENS and S-ENS (Figure 7), spanning almost all size ranges (30-95 mm CW), suggests that internal recruitment to the fishery is probable for the next 3-4 years, though potentially at decreasing rates due to the lower numeric densities of smaller animals. High numerical densities at the smallest size range (\< 30mm), in all areas, are a promising sign of potential long-term recruitment. The survival of small crab is essential for the fishery to realize this recruitment. Any mortality (e.g. predation, environmental, and disease), emigration, or sub-legal-size terminal moulting will impact this recruitment potential. Based on size-frequency distributions from the trawl survey, 4X shows limited potential for internal recruitment to the fishery for the next 2-3 years.
 
 #### Reproduction
 
@@ -323,7 +314,7 @@ The `r year.assessment` S-ENS fishing mortality (F) is estimated to have been 0.
 The 4X fishing mortality (F) in `r year_previous`/`r year.assessment` was XX (Figure 10). Generally, in 4X realized exploitation rates are likely higher, since the computed exploitation rates incorporate biomass from throughout the 4X area and not just the fishery grounds.
 
 ```{r, out.width=480 }
-  include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "fishingmortality.timeseries.png" ) )
+  #include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "fishingmortality.timeseries.png" ) )
 ```
 
 *Figure 10. Time-series of fishing mortality from the fishery model for N-ENS, S-ENS, and 4X, respectively. Posterior density distributions are presented in gray, with the darkest line being the median with  95% Confidence Interval shading. The solid(red) line is the estimated fishing mortality at maximum sustainable yield and the stippled (black) line is the 20% harvest rate.*
@@ -440,7 +431,7 @@ Many existing measures and fishing practices in the Scotian Shelf Snow Crab fish
 
 - Immature and soft-shelled (newly-moulted, easily damaged) Snow Crab are not harvested, and handling mortality is minimized via spring harvesting, voluntary area closures, and at-sea observer monitoring of soft-shell incidence, helping to maximize the potential yield per animal to the biomass. 
 
-In addition to the above, **Harvest control rules** are used to guide harvest strategies (DFO 2013; Figures 14 & 15). More specifically, the state of the fishery relative to the following "reference points" are used to determine overall strategy. In terms of fishable biomass, Lower and Upper Stock Reference (LSR, USR) are 25% and 50% of carrying capacity delineate "critial", "cautious" and "healthy" zones. In terms of exploitation rates, the Removal Reference (RR) is exploiation rate that we try not to cross; it is defined in term of the fishing mortality associated with Maximum Sustainable Yield (FMSY).    
+In addition to the above, **Harvest control rules** are used to guide harvest strategies (DFO 2013; Figures 14 & 15). More specifically, the state of the fishery relative to the following "reference points" are used to determine overall strategy. In terms of fishable biomass, Lower and Upper Stock Reference (LSR, USR) are 25% and 50% of carrying capacity delineate "critical", "cautious" and "healthy" zones. In terms of exploitation rates, the Removal Reference (RR) is exploitation rate that we try not to cross; it is defined in terms of the fishing mortality associated with Maximum Sustainable Yield (FMSY).    
 
 The operational Target Removal Reference (TRR) changes depending upon the "zone" in which a lands. When in the "healthy zone", the TRR is between 10% to 30% of the fishable biomass (or fishing mortality of 0.11 and 0.36, respectively). In the "cautious zone",  the TRR is between 0% to 20% of the fishable biomass (or fishing mortality of o and 0.22, respectively). In the "critical zone", fishery closure until recovery (at a minimum, until FB > LSR). Overall biological and ecosystem (secondary) considerations as recruitment, spawning stock (female) biomass, size structure, sex ratios and environmental and ecosystem conditions, provide additional guidance within each range.
 \
@@ -469,7 +460,7 @@ The estimates of FMSY {and 95% CI} are:
 
 
 ```{r, out.width=480 }
-  include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "hcr.default.png" ) )
+  #include_graphics( file.path( SCD, "modelled", "1999_present", "fishery_model_results", "hcr.default.png" ) )
 ```
 
 *Figure 15. Fishing mortality and fishable biomass in the context of Harvest Control Rules for N-ENS (top), S-ENS (middle), and 4X (bottom). The large red dot indicates most recent year.*
@@ -496,13 +487,13 @@ The estimates of FMSY {and 95% CI} are:
 \
 
 ```{r, out.width=280 }
-  loc = file.path( SCD, "modelled", "1999_present", "predicted.biomass.densitites" )
-  fn1 = file.path( loc, paste( "biomass", year_previous, "png", sep=".") )
-  fn2 = file.path( loc, paste( "biomass", (year.assessment  ), "png", sep=".") )
-  toplot = NULL
-  if (file.exists(fn1) ) toplot = c(toplot, fn1) 
-  if (file.exists(fn2) ) toplot = c(toplot, fn2) 
-  include_graphics( toplot )
+  #loc = file.path( SCD, "modelled", "1999_present", "predicted.biomass.densitites" )
+  #fn1 = file.path( loc, paste( "biomass", year_previous, "png", sep=".") )
+  #fn2 = file.path( loc, paste( "biomass", (year.assessment  ), "png", sep=".") )
+  #toplot = NULL
+  #if (file.exists(fn1) ) toplot = c(toplot, fn1) 
+  #if (file.exists(fn2) ) toplot = c(toplot, fn2) 
+  #include_graphics( toplot )
 
 ```
 
@@ -544,7 +535,7 @@ Courtenay, S.C., M. Boudreau, and K. Lee. (editors). 2009. Potential Impacts of 
 
 DFO. 2013. [Integrated Fisheries Management Plan for Eastern Nova Scotia and 4X Snow Crab (*Chionoecetes Opillio*)](http://www.dfo-mpo.gc.ca/fm-gp/peches-fisheries/ifmp-gmp/snow-crab-neige/snow-crab-neiges2013-eng.htm).
 
-DFO. 2018. Stock Status Update of Atlantic Halibut (Hippoglossus hippoglossus) on the Scotian Shelf and Southern Grand Banks in NAFO Divisions 3NOPs4VWX5Zc. DFO Can. Sci. Advis. Sec. Sci. Resp. 2018/022.
+DFO. 2018. Stock Status Update of Atlantic Halibut (*Hippoglossus hippoglossus*) on the Scotian Shelf and Southern Grand Banks in NAFO Divisions 3NOPs4VWX5Zc. DFO Can. Sci. Advis. Sec. Sci. Resp. 2018/022.
 \
 
 
@@ -571,7 +562,7 @@ DFO. 2018. Stock Status Update of Atlantic Halibut (Hippoglossus hippoglossus) o
 Correct Citation for this Publication:
 \
 
-DFO. 2020. Assessment of Scotian Shelf Snow Crab. DFO Can. Sci. Advis. Sec. Sci. Advis. Rep. 2020/nnn.
+DFO. 2022. Assessment of Scotian Shelf Snow Crab. DFO Can. Sci. Advis. Sec. Sci. Advis. Rep. 2022/nnn.
 
 \
 
