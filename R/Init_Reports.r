@@ -29,7 +29,7 @@ if(0){ # Do not want to execute report creation on package loading, run
   January.industry.meeting.data(current_year)
   V2LSCF.SCtemp.data(current_year)
   V2LSCF.summary.data(current_year)
-  Preliminary.survey.data(current_year, code break because you didnt add logger plot)
+  Preliminary.survey.data(current_year)
   #Accoustic.data(current_year)
     
   ##Need to add one that creates one presentation for all years as this is what we do starting 2021.
