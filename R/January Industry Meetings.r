@@ -882,6 +882,20 @@ January.industry.meeting.data = function (current_year) {
   x$BOARD_DATE[i4x] = x$BOARD_DATE[i4x] + lubridate::days(91) #add the days back
   
   
+  
+  
+  ####ERROR HERE
+ # TRIP_ID     TRIP TRIP_TYPE     VESSEL_NAME LICENSE_NO BOARD_DATE LANDING_DATE       OBSERVER SETCD_ID GEARCD_ID HAULCCD_ID SET_NO
+#  32075 100051291 J18-0174      CRAB ASHLEY & TRAVIS     107500 2018-06-09   2018-06-11 CORBETT, CHRIS        1        62          1      3
+#  NUM_HOOK_HAUL COMAREA_ID NAFAREA_ID EST_CATCH EST_KEPT_WT EST_DISCARD_WT EST_NUM_CAUGHT PRODCD_ID COMMENTS DEPTH PNTCD_ID      lat LATDDMM
+#  32075             5        C24        4WD     0.681         590             91             NA         0     <NA>   155        4 45.03333    4502
+#  lon LONGDDMM START_PNTCD_ID START_SETDATE START_SETTIME END_PNTCD_ID END_SETDATE END_SETTIME SOAK_TIME year cfa area
+#  32075 -65.66667     6540              1    2018-06-07          <NA>            4  2018-06-09        <NA>        NA 2018  4X   4X
+ 
+  x$cfa[which(x$TRIP_ID == 100051291)] = "CFA 24"
+  x$area[which(x$TRIP_ID == 100051291)] = "South"
+  
+   
   #Choose most recent year and create directory
   i=which(x$cfa=="CFA 23")
   # iy=max(as.numeric(as.character(x$year)))
@@ -938,7 +952,10 @@ January.industry.meeting.data = function (current_year) {
   ys=yrs
   
   out$Landings=NA
-  cfa=unique(out$Area)
+out$Area[which(out$Area == "4X")] = "CFA 4X"
+    cfa=unique(out$Area)
+ # cfa=c("CFA 4X", "CFA 23", "CFA 24", "N-ENS") 
+  
   for (y in ys){
     for (c in cfa){
       if(!any(year.land$year==y & year.land$cfa==c)){
@@ -951,28 +968,26 @@ January.industry.meeting.data = function (current_year) {
   }
   
   out$Observed=round(as.numeric(as.character(out$Observed)))
-  out$Percent=round(out$Observed/out$Landings*100,1)
-  names(out)=c("Year", "Area", "Observed (mt)", "Traps Sampled", "Traps Observed", "Landings (mt)", "Percent")
-  out$Area=factor(out$Area, levels= c("N-ENS", "CFA 23", "CFA 24", "4X" ))
-  out=out[order(out$Area),]
+  out$Percent=round(as.numeric(out$Observed)/out$Landings*100,1)
+  names(out)=c("Year", "Area", "Observed (mt)", "Traps Sampled", "Traps Observed", "Landings (mt)", "Percent Observed")
+  out$Area=factor(out$Area, levels= c("N-ENS", "CFA 23", "CFA 24", "CFA 4X" ))
+  out=out[order(out$Year, out$Area),]
+
   
-  out$Landings=NA
-  cfa=unique(out$Area)
-  for (y in ys){
-    for (c in cfa){
-      if(!any(year.land$year==y & year.land$cfa==c)){
-        out$Landings[out$Area==c & out$Year==y]=NA
-      }
-      else{
-        out$Landings[out$Area==c & out$Year==y]=round(year.land$mt[year.land$year==y & year.land$cfa==c],0)
-      }
-    }
-  }
-  out$Observed=round(as.numeric(as.character(out$Observed)))
-  out$Percent=round(out$Observed/out$Landings*100,1)
-  names(out)=c("Year", "Area", "Observed (mt)", "Traps Sampled", "Traps Observed", "Landings (mt)", "Percent")
-  out$Area=factor(out$Area, levels= c("N-ENS", "CFA 23", "CFA 24", "4X" ))
-  out=out[order(out$Area),]
+  put=out
+  put$`Year` = as.numeric(put$`Year`)
+  put$`Traps Sampled` = as.numeric(put$`Traps Sampled`)
+  put$`Traps Observed` = as.numeric(put$`Traps Observed`)
+  put$`Percent Observed`[which(put$`Percent Observed` == 'NA(NA)')] = '-'
+  #source("C:/Scripts/functions/tab.4.tex.r")
+  kbl(x = put[c(2,7)], row.names = F, "latex", booktabs = T) %>%
+    pack_rows(index = table(put$Year)) %>%
+    kable_classic() %>%
+    kable_styling(latex_options = c("striped", "scale_down")) %>%
+    as_image(file = file.path(wd,  "observerpercent5year.pdf"))
+  
+  
+  
   #out=out[out$Area != "4X",]
   
   

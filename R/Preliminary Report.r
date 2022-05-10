@@ -428,5 +428,244 @@ AND C.SPECCD_ID=N.SPECCD_ID" )
     #dev.off()
     print(paste("Find file here: ", wd,"/", filename,sep=""))
   }
+  
+  
+  
+  #Survey delta kg plots
+  
+  
+  library(marmap)
+  library(oce)
+  library(ocedata)
+  library(mapdata)
+  library(rnaturalearth)
+  b = getNOAA.bathy(lon1 = -66.1, lon2 = -56.6, lat1 = 42.8, lat2 = 47.4, resolution = 1)
+  data("coastlineWorldFine")
+  bf = fortify.bathy(b)
+  
+  # get regional polygons
+  reg = map_data("world2Hires")
+  reg = subset(reg, region %in% c('Canada', 'USA'))
+  
+  # convert lat longs
+  reg$long = (360 - reg$long)*-1
+  
+  
+  world <- ne_countries(scale = "medium", returnclass = "sf")
+  class(world)
+  
+  require(aegis)
+  current_year = 2021
+  sets =  snowcrab.db( DS="set.complete")
+  all = sets
+  all.p = all[which(as.numeric(all$yr) != current_year),]
+  backlim = current_year - 10
+  all.p = all.p[which(all.p$yr >= backlim),]
+  all.p = all.p[which(all.p$yr <= current_year),]
+  
+  all.c = all[which(as.numeric(all$yr) == current_year),]
+  all.l = all[which(as.numeric(all$yr) == current_year-2),]
+  
+  
+  all.c$delta.totmassmale.last = NA
+  all.c$totmassmale.last = NA
+  
+  for(i in 1:nrow(all.c)){
+    all.c$delta.totmassmale.last[i] = all.c$totmass.male[i] - mean(all.l$totmass.male[which(all.l$station == all.c$station[i])], na.rm = T)
+    all.c$totmassmale.last[i] = mean(all.l$totmass.male[which(all.l$station == all.c$station[i])], na.rm = T)
+    
+  }
+  tomap = all.c[which(as.numeric(all.c$station) < 980),]
+  tomap = tomap[which(is.finite(tomap$delta.totmassmale.last)),]
+  
+  map<-ggplot(data = world) +#this one plots location of receivers by OTN station name.  This confirms that the station names are not consistent with locations
+    # add 100m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-100),
+                 size=c(0.3),
+                 colour="grey")+
+    
+    # add 250m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-250),
+                 size=c(0.6),
+                 colour="grey")+
+    
+    # add coastline
+    geom_polygon(data = reg, aes(x = long, y = lat, group = group), 
+                 fill = "darkgrey", color = NA) + 
+    
+    geom_point(data = tomap, aes(x = lon, y = lat, col = delta.totmassmale.last), size = 2, stroke = 2, 
+               shape = 21) +
+    labs(title = paste("Change in total mass of males 2021 compared to 2019\n  -201kg total from qualifing stations\n 79% of 2019 total male mass\n Does not take into account swept area", sep =""), color = "kg\n") +
+    scale_color_gradient2(low="blue", mid="white", high="red", 
+                          limits = c(-20, 20))+
+    coord_sf(xlim = c(-66.1, -56.6), ylim = c(42.8, 47.4), expand = TRUE)+
+    labs(x="Longitude", y="Latitude")+
+    theme_bw()
+  map
+  ggsave(filename = "SurveyStation.totmass.males.2021x2019.pdf", device = "pdf", width = 12, height = 12)
+  
+  sum(tomap$delta.totmassmale.last)
+  sum(tomap$totmassmale.last)
+  sum(tomap$totmass.male)
+  
+  
+  
+  
+  all.c$delta.totmassmale.last = NA
+  all.c$totmassmale.last = NA
+  
+  for(i in 1:nrow(all.c)){
+    all.c$delta.totmassmale.last[i] = all.c$totmass.male[i] - mean(all.p$totmass.male[which(all.p$station == all.c$station[i])], na.rm = T)
+    all.c$totmassmale.last[i] = mean(all.p$totmass.male[which(all.p$station == all.c$station[i])], na.rm = T)
+    
+  }
+  tomap = all.c[which(as.numeric(all.c$station) < 980),]
+  tomap = tomap[which(is.finite(tomap$delta.totmassmale.last)),]
+  
+  map<-ggplot(data = world) +#this one plots location of receivers by OTN station name.  This confirms that the station names are not consistent with locations
+    # add 100m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-100),
+                 size=c(0.3),
+                 colour="grey")+
+    
+    # add 250m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-250),
+                 size=c(0.6),
+                 colour="grey")+
+    
+    # add coastline
+    geom_polygon(data = reg, aes(x = long, y = lat, group = group), 
+                 fill = "darkgrey", color = NA) + 
+    
+    geom_point(data = tomap, aes(x = lon, y = lat, col = delta.totmassmale.last), size = 2, stroke = 2, 
+               shape = 21) +
+    labs(title = paste("Change in total mass of males 2021 compared to mean of previous 10 years\n  -112kg total from qualifing stations\n 87% of previous 10 years mean total male mass\n Does not take into account swept area ", sep =""), color = "kg\n") +
+    scale_color_gradient2(low="blue", mid="white", high="red", 
+                          limits = c(-20, 20))+
+    coord_sf(xlim = c(-66.1, -56.6), ylim = c(42.8, 47.4), expand = TRUE)+
+    labs(x="Longitude", y="Latitude")+
+    theme_bw()
+  map
+  ggsave(filename = "SurveyStation.totmass.males.2021x-10yr.pdf", device = "pdf", width = 12, height = 12)
+  
+  sum(tomap$delta.totmassmale.last)
+  sum(tomap$totmassmale.last)
+  sum(tomap$totmass.male)
+  sum(tomap$totmass.male)/sum(tomap$totmassmale.last)
+  
+  
+  
+  
+  
+  
+  
+  all.c$delta.totmasscommmale.last = NA
+  all.c$totmasscommmale.last = NA
+  
+  for(i in 1:nrow(all.c)){
+    all.c$delta.totmasscommmale.last[i] = all.c$totmass.male.com[i] - mean(all.l$totmass.male.com[which(all.l$station == all.c$station[i])], na.rm = T)
+    all.c$totmasscommmale.last[i] = mean(all.l$totmass.male.com[which(all.l$station == all.c$station[i])], na.rm = T)
+    
+  }
+  tomap = all.c[which(as.numeric(all.c$station) < 980),]
+  tomap = tomap[which(is.finite(tomap$delta.totmasscommmale.last)),]
+  
+  map<-ggplot(data = world) +#this one plots location of receivers by OTN station name.  This confirms that the station names are not consistent with locations
+    # add 100m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-100),
+                 size=c(0.3),
+                 colour="grey")+
+    
+    # add 250m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-250),
+                 size=c(0.6),
+                 colour="grey")+
+    
+    # add coastline
+    geom_polygon(data = reg, aes(x = long, y = lat, group = group), 
+                 fill = "darkgrey", color = NA) + 
+    
+    geom_point(data = tomap, aes(x = lon, y = lat, col = delta.totmasscommmale.last), size = 2, stroke = 2, 
+               shape = 21) +
+    labs(title = paste("Change in total mass of commercial males 2021 compared to 2019\n  -42kg total from qualifing stations\n 92% of 2019 total male mass\n Does not take into account swept area", sep =""), color = "kg\n") +
+    scale_color_gradient2(low="blue", mid="white", high="red", 
+                          limits = c(-15, 15))+
+    coord_sf(xlim = c(-66.1, -56.6), ylim = c(42.8, 47.4), expand = TRUE)+
+    labs(x="Longitude", y="Latitude")+
+    theme_bw()
+  map
+  ggsave(filename = "SurveyStation.totmass.comm.males.2021x2019.pdf", device = "pdf", width = 12, height = 12)
+  
+  sum(tomap$delta.totmasscommmale.last)
+  sum(tomap$totmasscommmale.last)
+  sum(tomap$totmass.male.com)
+  sum(tomap$totmass.male.com)/sum(tomap$totmasscommmale.last)
+  
+  
+  
+  all.c$delta.totmasscommmale.last = NA
+  all.c$totmasscommmale.last = NA
+  
+  for(i in 1:nrow(all.c)){
+    all.c$delta.totmasscommmale.last[i] = all.c$totmass.male.com[i] - mean(all.p$totmass.male.com[which(all.p$station == all.c$station[i])], na.rm = T)
+    all.c$totmasscommmale.last[i] = mean(all.p$totmass.male.com[which(all.p$station == all.c$station[i])], na.rm = T)
+    
+  }
+  tomap = all.c[which(as.numeric(all.c$station) < 980),]
+  tomap = tomap[which(is.finite(tomap$delta.totmasscommmale.last)),]
+  
+  
+  map<-ggplot(data = world) +#this one plots location of receivers by OTN station name.  This confirms that the station names are not consistent with locations
+    # add 100m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-100),
+                 size=c(0.3),
+                 colour="grey")+
+    
+    # add 250m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-250),
+                 size=c(0.6),
+                 colour="grey")+
+    
+    # add coastline
+    geom_polygon(data = reg, aes(x = long, y = lat, group = group), 
+                 fill = "darkgrey", color = NA) + 
+    
+    geom_point(data = tomap, aes(x = lon, y = lat, col = delta.totmasscommmale.last), size = 2, stroke = 2, 
+               shape = 21) +
+    labs(title = paste("Change in total mass of males 2021 compared to mean of previous 10 years\n  -27kg total from qualifing stations\n 95% of previous 10 years mean total male mass\n Does not take into account swept area ", sep =""), color = "kg\n") +
+    scale_color_gradient2(low="blue", mid="white", high="red", 
+                          limits = c(-15, 15))+
+    coord_sf(xlim = c(-66.1, -56.6), ylim = c(42.8, 47.4), expand = TRUE)+
+    labs(x="Longitude", y="Latitude")+
+    theme_bw()
+  map
+  ggsave(filename = "SurveyStation.totmass.comm.males.2021x-10yr.pdf", device = "pdf", width = 12, height = 12)
+  
+  sum(tomap$delta.totmasscommmale.last)
+  sum(tomap$totmasscommmale.last)
+  sum(tomap$totmass.male.com)
+  sum(tomap$totmass.male.com)/sum(tomap$totmasscommmale.last)
+  
+  
+  
+  
+  
+  
 }
 
