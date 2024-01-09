@@ -1,6 +1,8 @@
 require(aegis)
 require(bio.snowcrab)
 require(lubridate)
+
+Sensor.validate = function () {
 set = snowcrab.db( DS="set.clean", p=p )
 
 set$spread = set$spread*1000
@@ -208,5 +210,5 @@ ggplot(set, aes(x = yr)) +
     axis.text.y.left = element_text(color = "darkblue")
     
     )
-
+}
 

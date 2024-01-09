@@ -2,7 +2,7 @@ par.old = par()$mar
 #NOTE:  This script has been modified on the fly to create tables..will need to be cleaned up for January meetings
 January.industry.meeting.data = function (current_year) {
   require(Cairo)
-  require(bio.utilities)
+  #require(bio.utilities)
   require(aegis)
   require(devEMF)
   if(!exists("current_year"))  current_year = year(now())
@@ -16,7 +16,7 @@ January.industry.meeting.data = function (current_year) {
   
   #Only do grab database refresh if more than 24 hours since last query.
   rawfile=file.path(wd, paste("logbook.",current_year,".rdata", sep=""))
-  update = T
+  update = F
   if(!file.exists(rawfile)) update = T
   if(!update)if(lubridate::hour(lubridate::as.period(lubridate::now() - file.info(rawfile)$mtime) ) > 24) update = T
   if(update){

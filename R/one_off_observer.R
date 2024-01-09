@@ -1,7 +1,8 @@
-require(bio.utilities)
-require(aegis)
+#require(bio.utilities)
+#require(aegis)
 require(devEMF)
-require(bio.utilities)
+#require(bio.utilities)
+Obs.oneOFF = function () {
 con= dbConnect(DBI::dbDriver("Oracle"), oracle.username, oracle.password, oracle.server)
 
 lic = ROracle::dbGetQuery(con, "select * from MARFISSCI.LICENCE_AREAS")
@@ -168,3 +169,4 @@ names(merged)=c("Year", "Area", "Observed (mt)", "Traps Sampled", "Traps Observe
 
 merged=merged[order(merged$Year, merged$Area),]
 write.csv(merged, "observed.percents.csv")
+}
