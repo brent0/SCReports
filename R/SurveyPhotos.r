@@ -103,7 +103,8 @@ createSurveyPhotosKML =  function(offline = T){
 
   year.assessment = 2021
   p = bio.snowcrab::load.environment( year.assessment=year.assessment )
-  set =  snowcrab.db( DS="set.clean", p=p )
+  #set =  snowcrab.db( DS="set.clean", p=p )
+  set = snowcrab.db(DS = "setInitial", p=p, include.bad = T)
   set = set[which(set$yr >= 2004),]
   set$chrono = format(set$timestamp, format="%Y-%b-%d %H:%M:%S")
   set$temp = round(set$t, 2)

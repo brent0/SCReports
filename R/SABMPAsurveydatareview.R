@@ -3,16 +3,19 @@
 
 MPA.SAB.data = function (current_year) {
   
-  ######NEED TO MODIFY THE REST SIMILAR TO MPA.gully.data############
+  ######NEED TO MODIFY THE REST SIMILAR TO MPA.sab.data############
 
-getwd()
-setwd("C:/Users/GlassA/Desktop/covid copies/SABMPA")
-
-library(dplyr)
-library(ggplot2)
-library(tidyr)
-library(lubridate)
-
+  
+  write.dir = file.path(bio.datadirectory, "bio.snowcrab", "reports", current_year, "SAB")
+  message(paste("Creating SAB report data tables for ", current_year, sep = ""))
+  message("")
+  if(!dir.exists(write.dir))dir.create(write.dir, recursive= T)
+  message(paste("All relevant tables can be found at: ", write.dir, sep = ""))
+  message("")
+  
+  # ----get catch data for all tows inside the MPA ----
+  con= dbConnect(DBI::dbDriver("Oracle"), oracle.username, oracle.password, oracle.server)
+  
 # ----get catch data for all tows inside the MPA ----
 require(ROracle)
 con= dbConnect(DBI::dbDriver("Oracle"), oracle.username, oracle.password, oracle.server)
@@ -30,16 +33,25 @@ AND (st.fishset_id = pr.fishset_Id
     AND st.set_no = pr.set_no)
 AND (st.fishset_id = ca.fishset_id
 AND st.haulccd_id = '1')
-and st.station in ('016', '017', '018', '029', '031', '032', '034', '091', '093', '205', '511', '609', '611', '801')  
+and CAST(st.station AS int) in (16, 18, 29, 32, 34, 91, 93, 511, 609, 17, 31, 205, 611, 801, 36, 51, 204, 206, 507)
 order by board_date, station, speccd_id"))
 sab<-sabdat
+
+if(length(unique(sab$STATION)) != 19){
+  warning("Not all SAB Stations entered!!")
+}
+
 str(sab)
 #separate date
 sab$BOARD_DATE <- as.Date(sab$BOARD_DATE, format = "%Y-%m-%d hh:mm:ss")
 sab = sab %>% 
   mutate(BOARD_DATE = ymd(BOARD_DATE)) %>% 
   mutate_at(vars(BOARD_DATE), funs(year, month, day))
-summary(sab)
+
+sab$year.assesment = sab$year
+sab$year.assesment[which(sab$month < 5)]  = sab$year.assesment[which(sab$month < 5)]-1
+
+sab$STATION = as.numeric(sab$STATION)
 
 #number of distinct species by year
 sab %>%
@@ -48,7 +60,7 @@ sab %>%
 
 #change speccd_id to name and group certain species
 data1=sab
-
+data1$SPECCD_ID[data1$SPECCD_ID == 8601] <- 8600
 data1$SPECCD_ID[data1$SPECCD_ID == 10] <- "Atlantic Cod"
 data1$SPECCD_ID[data1$SPECCD_ID == 11] <- "Haddock"
 data1$SPECCD_ID[data1$SPECCD_ID == 12] <- "White Hake"
@@ -179,6 +191,21 @@ data1$SPECCD_ID[data1$SPECCD_ID == 8500] <- "Jellyfish NS"
 data1$SPECCD_ID[data1$SPECCD_ID == 8520] <- "Jellyfish NS"
 data1$SPECCD_ID[data1$SPECCD_ID == 8600] <- "Sponges NS"
 data1$SPECCD_ID[data1$SPECCD_ID == 9300] <- "Seaweeds NS"
+data1$SPECCD_ID[data1$SPECCD_ID == 385] <- "Deepwater Flounder"
+data1$SPECCD_ID[data1$SPECCD_ID == 4221] <- "Northern Moonsnail"
+data1$SPECCD_ID[data1$SPECCD_ID == 4355] <- "Artic Surf Clam"
+data1$SPECCD_ID[data1$SPECCD_ID == 2214] <- "Bristled longbeak shrimp"
+data1$SPECCD_ID[data1$SPECCD_ID == 6611] <- "Northern Sea Cucumbers"
+data1$SPECCD_ID[data1$SPECCD_ID == 1827] <- "Sea Peach"
+data1$SPECCD_ID[data1$SPECCD_ID == 2312] <- "Lebbeus Polaris"
+data1$SPECCD_ID[data1$SPECCD_ID == 2414] <- "Sclerocrangon Boreas"
+data1$SPECCD_ID[data1$SPECCD_ID == 302] <- "Arctic Staghorn Sculpin"
+data1$SPECCD_ID[data1$SPECCD_ID == 313] <- "Two horn Sculpin"
+data1$SPECCD_ID[data1$SPECCD_ID == 620] <- "Laval's Eelpout"
+data1$SPECCD_ID[data1$SPECCD_ID == 6213] <- "Ophiura Sarsi"
+data1$SPECCD_ID[data1$SPECCD_ID == 6717] <- "Caudina Arenata"
+data1$SPECCD_ID[data1$SPECCD_ID == 8316] <- "Hormathia SP"
+data1$SPECCD_ID[data1$SPECCD_ID == 8317] <- "Bolocera SP"
 
 datacheck<-data1 %>%  filter(SPECCD_ID == "Sea Urchin", year == 2006)
 
@@ -189,106 +216,185 @@ data1 = data1 %>%
   mutate_at(vars(BOARD_DATE), funs(year, month, day))
 summary(data1)
 
-# table of total species caught per year 
+# table of total species caught per year in the 10 tows
 table1 <- data1 %>%
-  group_by(year, SPECCD_ID) %>%
-  summarise(numcaught = sum(EST_NUM_CAUGHT), wt = sum(EST_DISCARD_WT)) 
+  group_by(year.assesment, SPECCD_ID) %>%
+  summarise(numcaught = sum(EST_NUM_CAUGHT), wt = sum(EST_DISCARD_WT))
 table1
-write.table(table1,file="SABMPAspectableallyears.csv", sep=",")
+write.table(table1,file=file.path(write.dir,"SABMPAspectableallyears.csv"), sep=",")
+
+# table of total species caught per year in the 14 tows inside the MPA
+table2 <- data1[which(data1$STATION %in% c(16, 18, 29, 32, 34, 91, 93, 511, 609, 17, 31, 205, 611, 801)),] %>%
+  group_by(year.assesment, SPECCD_ID) %>%
+  summarise(numcaught = sum(EST_NUM_CAUGHT), wt = sum(EST_DISCARD_WT))
+table2
+write.table(table2,file=file.path(write.dir,"SABMPAspectableallyears_inside.csv"), sep=",")
 
 table1a<-data1 %>% # individuals by spec by year
-  group_by(SPECCD_ID, year) %>% 
-  summarise(N = sum(EST_NUM_CAUGHT)) %>% 
-  spread(year, N)
-table1a
-write.table(table1a,file="SABMPAspectableallyears_by_spec.csv", sep=",")
+  group_by(SPECCD_ID, year.assesment) %>%
+  summarise(N = sum(EST_NUM_CAUGHT)) %>%
+  spread(year.assesment, N)
+
+table2a<-data1[which(data1$STATION %in% c(16, 18, 29, 32, 34, 91, 93, 511, 609, 17, 31, 205, 611, 801)),] %>% # individuals by spec by year
+  group_by(SPECCD_ID, year.assesment) %>%
+  summarise(N = sum(EST_NUM_CAUGHT)) %>%
+  spread(year.assesment, N)
+
+ggplot(table1) +
+  geom_point(aes(x = year.assesment, y = numcaught)) +
+  facet_zoom(ylim = c(0, 800))
+ggsave(width = 8, height = 5, file.path(write.dir,paste("SABMPAspec_", current_year,".jpg", sep = "")))
+
+
+ggplot(table2) +
+  geom_point(aes(x = year.assesment, y = numcaught))
+ggsave(width = 8, height = 5, file.path(write.dir,paste("SABMPAspec_inside", current_year,".jpg", sep = "")))
 
 
 specplot <- ggplot(table1 %>% filter(numcaught > 99)) +
-  geom_point(aes(x = year, y = numcaught, col = SPECCD_ID), size = 4, shape = "triangle") + 
-  geom_line(aes(x = year, y = numcaught, col = SPECCD_ID)) +
+  geom_point(aes(x = year.assesment, y = numcaught, col = SPECCD_ID), size = 4, shape = "triangle") +
+  geom_line(aes(x = year.assesment, y = numcaught, col = SPECCD_ID)) +
   xlab("Year") +
-  ylab("Number Captured") + 
+  ylab("Number Captured") +
   theme_bw(12) +
   scale_x_continuous(breaks = c(2004, 2008, 2012, 2016, 2020)) +
-  ggtitle("St Anns Bank MPA Captured Species (2004-2020)")
-specplot
+  ggtitle(paste("SAB MPA Captured Species (2004-", current_year,"  * no survey in 2020)", sep = "")) +
+  facet_zoom(ylim = c(0, 800))
+
+ggsave(width = 8, height = 5, file.path(write.dir,"MPASABspecallyears.jpg"))
+
+
+specplot <- ggplot(table2 %>% filter(numcaught > 99)) +
+  geom_point(aes(x = year.assesment, y = numcaught, col = SPECCD_ID), size = 4, shape = "triangle") +
+  geom_line(aes(x = year.assesment, y = numcaught, col = SPECCD_ID)) +
+  xlab("Year") +
+  ylab("Number Captured") +
+  theme_bw(12) +
+  scale_x_continuous(breaks = c(2004, 2008, 2012, 2016, 2020)) +
+  ggtitle(paste("SAB MPA Captured Species (2004-", current_year,"  * no survey in 2020)", sep = ""))
+
+ggsave(width = 8, height = 5, file.path(write.dir,"SABMPAspecallyears_inside.jpg"))
+message("Species plot written to: ", file.path(write.dir,"SABMPAspecallyears_inside.pdf"), sep = "")
+message("Add this as a figure")
+message("Also add the map (Figure 1) from previous years.")
+
+message("")
 
 
 # species caught per year, for current year
 table2 <-data1 %>%
-  filter(year == "2019") %>%
+  filter(year.assesment == current_year) %>%
   group_by(SPECCD_ID) %>%
   summarise(total = sum(EST_NUM_CAUGHT), wt = sum(EST_DISCARD_WT))
 table2
 
-write.table(table2,file="SABMPAspectable.csv", sep=",")
+write.table(table2,file=file.path(write.dir,"SABMPAspectable2.csv"), sep=",", row.names = F)
+# species caught per year, for current year, inside
+table2 <-data1[which(data1$STATION %in% c(16, 18, 29, 32, 34, 91, 93, 511, 609, 17, 31, 205, 611, 801)),] %>%
+  filter(year.assesment == current_year) %>%
+  group_by(SPECCD_ID) %>%
+  summarise(total = sum(EST_NUM_CAUGHT), wt = sum(EST_DISCARD_WT))
+table2
+
+write.table(table2,file=file.path(write.dir,"SABMPAspectable2_inside.csv"), sep=",", row.names = F)
+
+pos_date = data1[which(data1$year.assesment == current_year),]
+pos_date = data.frame(pos_date$BOARD_DATE, pos_date$STATION, pos_date$LATITUDE, pos_date$LONGITUDE)
+pos_date = unique(pos_date)
+write.table(pos_date,file=file.path(write.dir,"location_date.csv"), sep=",", row.names = F)
+message("Towed locations and dates written to: ", file.path(write.dir,"location_date.csv"), sep = "")
+message("Format and add this table in Box 3")
+message("")
+
+#SABinside = data1[which(data1$STATION %in% c('016', '018', '029', '032', '034', '091', '093', '511', '609')),]
+#write.table(SABinside,file=file.path(write.dir,"SAB_inside.csv"), sep=",", row.names = F)
+
 
 #----stomach sample details----
-require(ROracle)
 con= dbConnect(DBI::dbDriver("Oracle"), oracle.username, oracle.password, oracle.server)
-sabstom=dbGetQuery(con, ("SELECT stom.trip, stom.board_date, stom.set_no, sets.station, 
+sabstom=dbGetQuery(con, ("SELECT stom.trip, stom.board_date, stom.set_no, sets.station,
 stom.speccd_id, stom.fish_no
 FROM sncrabsets sets, snstomachdetails stom
 WHERE sets.trip = stom.trip
 AND sets.trip = stom.trip
 And sets.set_no = stom.set_no
 AND sets.setcd_id = '11'
+AND sets.haulccd_id = '1'
+and CAST(sets.station AS int) in (16, 18, 29, 32, 34, 91, 93, 511, 609, 17, 31, 205, 611, 801, 36, 51, 204, 206, 507)
 order by trip, board_date, station, speccd_id"))
 
 
-
-str(sabstom)
+sabstom$STATION = as.numeric(sabstom$STATION)
 #separate date
 sabstom$BOARD_DATE <- as.Date(sabstom$BOARD_DATE, format = "%Y-%m-%d hh:mm:ss")
-sabstom = sabstom %>% 
-  mutate(BOARD_DATE = ymd(BOARD_DATE)) %>% 
+sabstom = sabstom %>%
+  mutate(BOARD_DATE = ymd(BOARD_DATE)) %>%
   mutate_at(vars(BOARD_DATE), funs(year, month, day))
-summary(sabstom)
+sabstom$year.assesment = sabstom$year
+sabstom$year.assesment[which(sabstom$month < 5)]  = sabstom$year.assesment[which(sabstom$month < 5)]-1
 
 t1<-distinct(sabstom)# removes duplicates if there are any
 
 
-# number of stomach samples per year, for current year, month is selected to only
-#get the SABMPA samples
+# number of stomach samples per year, for current year assesment.
 table3 <-t1 %>%
-  filter(year == '2019', month == '9') %>%
+  filter(year.assesment == current_year) %>%
   group_by(STATION) %>%
   count(SPECCD_ID)
-table3
-write.table(table3,file="SABMPAstombystation_spec_table.csv", sep=",")
+
+if(length(unique(table3$STATION)) != 14){
+  warning("Not all SAB Stomachs entered!!")
+}
+
+write.table(table3,file=file.path(write.dir,"SABstomachbystation_spec_table.csv"), sep=",", row.names = F)
 
 # to get total SABMPA stomachs for current year
 table4 <-t1 %>%
-  filter(year == '2019', month == '9') %>%
-  count(year) 
+  filter(year.assesment == current_year) %>%
+  count(year.assesment)
 table4
-write.table(table4,file="SABMPAstom_total.csv", sep=",")
+write.table(table4,file=file.path(write.dir,"SABtotaltable.csv"), sep=",", row.names = F)
 
 #to get total number of stomach samples inside the SABMPA
 table5in <-t1 %>%
-  filter(year == '2019', month == '9', STATION %in% c('016', '018', '029', '032', '034', '091', '093', '511', '609')) %>%
+  filter(year.assesment == current_year, STATION %in% c(16, 18, 29, 32, 34, 91, 93, 511, 609, 17, 31, 205, 611, 801)) %>%
   count(STATION)
-table5in
-write.table(table5in,file="SABMPAstom_in_by_tow_table.csv", sep=",")
 
+write.table(table5in,file=file.path(write.dir,"SABstom_in_bytow_table.csv"), sep=",", row.names = F)
+#to get total number of stomach samples inside the SABMPA
+
+
+
+write.table(table5in,file=file.path(write.dir,"SABstom_in_bytow_table.csv"), sep=",", row.names = F)
+#to get total number of stomach samples inside the GullyMPA
 table5in2 <-t1 %>%
-  filter(year == '2019', month == '9', STATION %in% c('016', '018', '029', '032', '034', '091', '093', '511', '609')) %>%
-  count(year)
-table5in2
-write.table(table5in2,file="SABMPAstom_in_total_table.csv", sep=",")
+  filter(year.assesment == current_year, STATION %in% c(16, 18, 29, 32, 34, 91, 93, 511, 609, 17, 31, 205, 611, 801)) %>%
+  count(year.assesment)
+write.table(table5in2,file=file.path(write.dir,"SABstom_in_total_table.csv"), sep=",", row.names = F)
+message(paste("Total number of stomachs taken inside SAB MPA: ", table5in2$n, sep = ""))
+message("Include this number somewhere in Box 4.")
+message("")
 
-#to get total number of stomach samples taken adjecent to the SABMPA
+
+
+#to get total number of stomach samples taken adjacent to the GullyMPA
 table5out <-t1 %>%
-  filter(year == '2019', STATION %in% c('036', '051', '204', '206', '507')) %>%
-  count(STATION)
+  filter(year.assesment == current_year, STATION %in% c(36, 51, 204, 206, 507))
 table5out
-write.table(table5out,file="SABMPAstom_out_by_tow_table.csv", sep=",")
+write.table(table5out,file=file.path(write.dir,"SABstom_out_bytow_table.csv"), sep=",", row.names = F)
 
 table5out2 <-t1 %>%
-  filter(STATION %in% c('036', '051', '204', '206', '507'), year == '2019') %>%
-  count(year)
+  filter(STATION %in% c(36, 51, 204, 206, 507), year.assesment == current_year) %>%
+  count(year.assesment)
 table5out2
-write.table(table5out2,file="SABMPAstom_out_total_table.csv", sep=",")
+write.table(table5out2,file=file.path(write.dir,"SABstom_out_total_table.csv"), sep=",", row.names = F)
+message(paste("Total number of stomachs taken outside SAB MPA: ", table5out2$n, sep = ""))
+message("Include this number somewhere in Box 4.")
+message("")
+
+message("Add any other relevant information to the report!!!!")
+
+
+
 
 }

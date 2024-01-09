@@ -41,6 +41,7 @@ gully$BOARD_DATE <- as.Date(gully$BOARD_DATE, format = "%Y-%m-%d hh:mm:ss")
 gully = gully %>%
   mutate(BOARD_DATE = ymd(BOARD_DATE)) %>%
   mutate_at(vars(BOARD_DATE), funs(year, month, day))
+
 gully$year.assesment = gully$year
 gully$year.assesment[which(gully$month < 5)]  = gully$year.assesment[which(gully$month < 5)]-1
 
@@ -203,6 +204,14 @@ data1$SPECCD_ID[data1$SPECCD_ID == 8500] <- "Jellyfish NS"
 data1$SPECCD_ID[data1$SPECCD_ID == 8520] <- "Jellyfish NS"
 data1$SPECCD_ID[data1$SPECCD_ID == 8600] <- "Sponges NS"
 data1$SPECCD_ID[data1$SPECCD_ID == 9300] <- "Seaweeds NS"
+data1$SPECCD_ID[data1$SPECCD_ID == 385] <- "Deepwater Flounder"
+data1$SPECCD_ID[data1$SPECCD_ID == 4221] <- "Northern Moonsnail"
+data1$SPECCD_ID[data1$SPECCD_ID == 4355] <- "Artic Surf Clam"
+data1$SPECCD_ID[data1$SPECCD_ID == 2214] <- "Bristled longbeak shrimp"
+data1$SPECCD_ID[data1$SPECCD_ID == 6611] <- "Northern Sea Cucumbers"
+
+
+
 
 # separate date for new file
 data1$BOARD_DATE <- as.Date(data1$BOARD_DATE, format = "%Y-%m-%d hh:mm:ss")
@@ -381,7 +390,7 @@ table5out2 <-t1 %>%
   count(year.assesment)
 table5out2
 write.table(table5out2,file=file.path(write.dir,"gullystom_out_total_table.csv"), sep=",", row.names = F)
-message(paste("Total number of stomachs taken outside Gully MPA: ", table5in2$n, sep = ""))
+message(paste("Total number of stomachs taken outside Gully MPA: ", table5out2$n, sep = ""))
 message("Include this number somewhere in Box 4.")
 message("")
 

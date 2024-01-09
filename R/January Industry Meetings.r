@@ -2,6 +2,9 @@ par.old = par()$mar
 #NOTE:  This script has been modified on the fly to create tables..will need to be cleaned up for January meetings
 January.industry.meeting.data = function (current_year) {
   require(Cairo)
+  require(bio.utilities)
+  require(aegis)
+  require(devEMF)
   if(!exists("current_year"))  current_year = year(now())
   
   #Create a folder to store all figures and tables
@@ -13,13 +16,13 @@ January.industry.meeting.data = function (current_year) {
   
   #Only do grab database refresh if more than 24 hours since last query.
   rawfile=file.path(wd, paste("logbook.",current_year,".rdata", sep=""))
-  update = F
+  update = T
   if(!file.exists(rawfile)) update = T
   if(!update)if(lubridate::hour(lubridate::as.period(lubridate::now() - file.info(rawfile)$mtime) ) > 24) update = T
   if(update){
     
     con= ROracle::dbConnect(DBI::dbDriver("Oracle"), oracle.username, oracle.password, oracle.server)
-    logbook= ROracle::dbGetQuery(con, " SELECT * FROM MARFISSCI.MARFIS_CRAB MARFIS_CRAB WHERE (MARFIS_CRAB.TARGET_SPC=705)")
+    logbook= ROracle::dbGetQuery(con, "SELECT * FROM MARFISSCI.MARFIS_CRAB MARFIS_CRAB WHERE TARGET_SPC = 705")
     lic = ROracle::dbGetQuery(con, "select * from MARFISSCI.LICENCE_AREAS")
     obs = ROracle::dbGetQuery(con, ("SELECT * FROM SNCRABSETS_OBS"))
     setsobs=ROracle::dbGetQuery(con, ("SELECT * FROM SNCRABSETS_OBS, SNCRABDETAILS_OBS 
@@ -337,13 +340,14 @@ January.industry.meeting.data = function (current_year) {
   lbyq$perc=NA
   lbyq$perc=(lbyq$lbs/lbyq$total)*100
   
-  
+
+
   spring=lbyq[lbyq$q=="Q2",] #April, May, June
   spring$sorter=NA
   spring$sorter[spring$cfa=="north"]=1
   spring$sorter[spring$cfa=="cfa23"]=2
   spring$sorter[spring$cfa=="cfa24"]=3
-  
+  require(doBy)
   spring=orderBy(~cfa, spring)
   spring=spring[order(spring$cfa),]
   spring = spring[which(spring$cfa != "cfa4X"),]
@@ -374,6 +378,86 @@ January.industry.meeting.data = function (current_year) {
   
   print(paste(filename, " created", sep=""))
   
+  
+  
+  summer=lbyq[lbyq$q %in% c("Q3"),] #July, Aug, Sept
+  summer$sorter=NA
+  summer$sorter[summer$cfa=="north"]=1
+  summer$sorter[summer$cfa=="cfa23"]=2
+  summer$sorter[summer$cfa=="cfa24"]=3
+  
+  summer=orderBy(~cfa, summer)
+  summer=summer[order(summer$cfa),]
+  summer = summer[which(summer$cfa != "cfa4X"),]
+  # Save as PDF
+  
+  filename=paste("percent_summer_landings.pdf", sep="")
+  
+  pdf(file=file.path(wd, filename))
+  par(mar = c(5, 4, 1, 1))
+  cf=unique(summer$cfa)
+  cf = cf[order(cf)]
+  cols=c("blue", "red","black","green4")
+  point=c(1,2,4,15)
+  
+  
+  plot(summer$year, cex.main = .1, summer$perc, type="n", ylab="Percent of Total", xlab="Year", ylim=c(0,100), lty=1, col="red", pch=19, bg="white")
+  
+  for (y in 1:length(cf)) {
+    sprc=summer[summer$cfa==cf[y],]
+    lines(x=sprc$year, y=sprc$perc, col=cols[y], lwd=2 )
+    points(x=sprc$year, y=sprc$perc, col=cols[y], pch=point[y])
+    
+  }
+  legend("topright",paste(cf), bty="n", col=cols, pch=point, inset=c(0,.1))
+  legend("topright",paste(cf), bty="n", col=cols, lwd = 1.5, lty=1, inset=c(0,.1))
+  par(mar=par.old)
+  dev.off()
+  
+  print(paste(filename, " created", sep=""))
+  
+
+  
+  
+  winter=lbyq[lbyq$q %in% c("Q1"),] #Jan, Fen, Mar
+  winter$sorter=NA
+  winter$sorter[winter$cfa=="north"]=1
+  winter$sorter[winter$cfa=="cfa23"]=2
+  winter$sorter[winter$cfa=="cfa24"]=3
+  
+  winter=orderBy(~cfa, winter)
+  winter=winter[order(winter$cfa),]
+  winter = winter[which(winter$cfa != "cfa4X"),]
+  # Save as PDF
+  
+  filename=paste("percent_winter_landings.pdf", sep="")
+  
+  pdf(file=file.path(wd, filename))
+  par(mar = c(5, 4, 1, 1))
+  cf=unique(winter$cfa)
+  cf = cf[order(cf)]
+  cols=c("blue", "red","black","green4")
+  point=c(1,2,4,15)
+  
+  
+  plot(winter$year, cex.main = .1, winter$perc, type="n", ylab="Percent of Total", xlab="Year", ylim=c(0,100), lty=1, col="red", pch=19, bg="white")
+  
+  for (y in 1:length(cf)) {
+    sprc=winter[winter$cfa==cf[y],]
+    lines(x=sprc$year, y=sprc$perc, col=cols[y], lwd=2 )
+    points(x=sprc$year, y=sprc$perc, col=cols[y], pch=point[y])
+    
+  }
+  legend("topright",paste(cf), bty="n", col=cols, pch=point, inset=c(0,.1))
+  legend("topright",paste(cf), bty="n", col=cols, lwd = 1.5, lty=1, inset=c(0,.1))
+  par(mar=par.old)
+  dev.off()
+  
+  print(paste(filename, " created", sep=""))
+  
+  
+  
+    
   #########################################
   #Annual Catch Rates
   #########################################
@@ -612,7 +696,7 @@ January.industry.meeting.data = function (current_year) {
   monthlycpue$kg=NA
   monthlycpue$kg=monthlycpue$lbspertrap/2.204626
   
-  monthlycpue=monthlycpue[monthlycpue$month %in% c("April", "May", "June", "July", "August", "September"),]
+  monthlycpue=monthlycpue[monthlycpue$month %in% c("March","April", "May", "June", "July", "August", "September"),]
   
   
   north=monthlycpue[monthlycpue$cfa0=="north",]
@@ -756,7 +840,7 @@ January.industry.meeting.data = function (current_year) {
   iyear=which(logs$year==iy)
   iyear1=which(logs$year==iy1)
   
-  spring=which(logs$q=="Q2")
+  spring=which(logs$q %in% c("Q1", "Q2"))
   summer=which(logs$q=="Q3")
   
   iyearspring=intersect(iyear, spring)
@@ -771,7 +855,9 @@ January.industry.meeting.data = function (current_year) {
   
   
   # Create PDF's
-  
+  tparmar = par()$mar
+  xmar = tparmar - c(0, tparmar[2], 0, 0)
+  par(mar=xmar)
   for (a in areas){
     filename=paste(a,"_past_two_years_fishing_positions.pdf", sep="")
     
@@ -780,12 +866,13 @@ January.industry.meeting.data = function (current_year) {
     }else{
       pdf(file=file.path(wd, filename), width = 10.2, height = 10)
     }
+
   fishmap(a = logs[iyear,], b= logs[iyear1,], area = a, cy = iy)
     dev.off()
     print(paste(filename, " created", sep=""))
   }
   
-  
+  par(mar = tparmar)
   
   # Plot Previous 2 Seasons Fishing Positions by Season (Q)
   
@@ -1314,7 +1401,7 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
   
   #Clean up names, rounding, etc for inclusion in presentation
   soft.sum=soft.sum[with(soft.sum, order(Area, as.numeric(Year))),]
-  names(soft.sum)=c("Year", "Area", "Landings","% Observed", "Observed Soft", "Total Soft")
+  names(soft.sum)=c("Year", "Area", "Landings(mt)","% Observed", "Observed Soft(mt)", "Total Soft(mt)")
   soft.sum$`Observed Soft`=round(soft.sum$`Observed Soft`,2)
   soft.sum$`Total Soft`=round(soft.sum$`Total Soft`, 2)
   yers=c(iy, iy-1, iy-2)
@@ -1329,7 +1416,7 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
   
   options(knitr.kable.NA = '-')
   #names(table1a) = c("Area", "Year", "Landings", "% Observed", "Observed Soft", "Total Soft")
-  tx = soft.sum[,c("Area", "Year", "Landings", "% Observed", "Observed Soft", "Total Soft")]
+  tx = soft.sum[,c("Area", "Year", "Landings(mt)", "% Observed", "Observed Soft(mt)", "Total Soft(mt)")]
   tx$Area = "         "
   tx %>%
     kbl(row.names = F, "latex", longtable = F, booktabs = T) %>%
@@ -1490,6 +1577,7 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
   yrs=as.character(sort(as.numeric(unique(x$year))))
   x$year=factor(x$year,levels=yrs, labels=yrs)
   x$season=NA
+  
   x$season[x$month %in% c("Jan", "Feb", "Mar")]="Winter"
   x$season[x$month %in% c("Apr", "May", "Jun")]="Spring"
   x$season[x$month %in% c("Jul", "Aug", "Sep")]="Summer"
@@ -1619,7 +1707,7 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
     if (n$area[1]=="North"){
       areaname="N-ENS"}
     
-    seasons=c("Spring","Summer")
+    seasons=c("winter","Spring","Summer")
     
     for  (s in seasons) {
       
@@ -1834,7 +1922,7 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
     dplyr::select(area, year, mt, cpuekg) %>%
     dplyr::group_by(area) %>%
     dplyr::filter(year > '2001')
-  
+
   source(file.path("S:", "CA's", "CA_db", "CA_database_functions.R"))
   TAC = CA.getTable("TAC")
   TACy = TAC[which(TAC$yr > iy-3),]
@@ -2040,7 +2128,7 @@ compute.vessels = function (x, var, index) {
 
 
 fishmap=function(a, b, area, cy){
-  
+
   # a$X = round_any(a$X, .0166666666666667)
   # a$Y = round_any(a$Y, .0166666666666667)
   # b$X = round_any(b$X, .0166666666666667)
@@ -2058,7 +2146,7 @@ fishmap=function(a, b, area, cy){
   #last= logs[iyear1,]
    last=as.EventData(b, projection= "LL")
    addPoints(data=last, cex = 3, col="yellow", pch=20)
-   current= logs[iyear,]
+   #current= logs[iyear,]
   
    current=as.EventData(a, projection= "LL")
   addPoints(data=current, cex = 3, col=scales::alpha("red", .2), pch=20)

@@ -51,7 +51,7 @@ V2LSCF.SCtemp.data = function (current_year) {
   #----select data using a modified sql view script----
   dat=dbGetQuery(con, ("SELECT *
 FROM SABMPA_TEMPERATURE
-WHERE PROJECT = 'V2LSCF'
+WHERE PROJECT = 'V2LSCF' OR PROJECT = 'SABMPA'
 "))
   
   
@@ -71,8 +71,9 @@ WHERE PROJECT = 'V2LSCF'
   names(temp)[names(temp) == '"Line"'] <- 'LINE'
   
   temp$LINE <- ifelse(temp$LAT_DD > 46.1, 'North', ifelse(temp$LAT_DD < 46.1, 'South', 'check'))
-  temp$LINE = as.factor(as.character(temp$LINE))
-  
+ temp$LINE[which(temp$PROJECT == "SABMPA")]  = "Single"
+ temp$LINE = as.factor(as.character(temp$LINE))
+ 
   levels(temp$LINE)
   
   names(temp)
@@ -243,9 +244,10 @@ WHERE PROJECT = 'V2LSCF'
   monthtempplot<-ggplot(sm, aes( y=avg_temp, x= yearmon, col = PID)) + 
     geom_line() +
     ggtitle("Average monthly temperature .") +
-    labs(x="Date", y="Ave. Temperature (°C)")
+    labs(x="Date", y="Ave. Temperature (°C)") +
+    theme(legend.position = "bottom")
   monthtempplot
-  ggsave(filename = fn, device = "pdf", width = 7, height = 5)
+  ggsave(filename = fn, device = "pdf", width = 13, height = 20)
 }
 
 
