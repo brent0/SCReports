@@ -2,7 +2,9 @@
 #----------------------------------------------------
 # generate map using PBSmapping plotting functions
 #----------------------------------------------------
-
+require( maptools )
+require( sp )
+require(terra)
 makemap= function(x,area="ens", addlabels=T, title="") {
 sc.shap.dir = file.path(bio.datadirectory, "bio.snowcrab", "maps", "shapefiles")
 ped.shap.dir = file.path(bio.datadirectory, "Science", "PED", "OverlayBoxes")
@@ -13,37 +15,40 @@ man.shap.dir = file.path(bio.datadirectory, "polygons", "Management_Areas", "Fis
 
 # read in shapefiles
 #--------------------------------------
-  basemap= importShapefile(file.path(ped.shap.dir,"map_base_region"))
-  dm200= importShapefile(file.path(mar.shap.dir,"dm200_region"))
-  dm100= importShapefile(file.path(mar.shap.dir,"dm100_region"))
-  zones= importShapefile(file.path(man.shap.dir,"sczones2010_polyline"))
-  land= importShapefile(file.path(bio.datadirectory,"polygons","Basemaps","Terrestrial","landmass_region"))
-  coast=importShapefile(file.path(bio.datadirectory, "polygons", "Basemaps", "Marine", "Coastline","coastline_polyline"))
-  axis=importShapefile(file.path(ped.shap.dir,"axis_polyline"))
+  
+
+
+  basemap = vect(file.path(ped.shap.dir,"map_base_region.shp"))
+  dm200= vect(file.path(mar.shap.dir,"dm200_region.shp"))
+  dm100= vect(file.path(file.path(mar.shap.dir,"dm100_region.shp")))
+  zones= vect(file.path(man.shap.dir,"sczones2010_polyline.shp"))
+  land= vect(file.path(bio.datadirectory,"polygons","Basemaps","Terrestrial","landmass_region.shp"))
+  coast=vect(file.path(bio.datadirectory, "polygons", "Basemaps", "Marine", "Coastline","coastline_polyline.shp"))
+  axis=vect(file.path(ped.shap.dir,"axis_polyline.shp"))
     
 # Provide projection information
 #---------------------------------
-  proj.abbr=attr(basemap, "projection") # abbreviated projection info
-  proj.full=attr(basemap, "prj") # full projection info
+ # proj.abbr=attr(basemap, "projection") # abbreviated projection info
+#  proj.full=attr(basemap, "prj") # full projection info
 
   ylim=c(b$slat,b$nlat)
   xlim=c(-(b$wlon),-(b$elon))
  
-  plotPolys(basemap, projection=proj.abbr, plt=c(.08,.99,.08,.99), col="royalblue2", border="black", font.lab=2,
-  xlab="Longitude", ylab="Latitude", axes=T, tck=-.01, tckLab=TRUE, ylim=ylim, xlim=xlim)
+  plot(basemap, plt=c(.08,.99,.08,.99), col="royalblue2", border="black", font.lab=2,
+  xlab="Longitude", ylab="Latitude", axes=T, tck=-.01, ylim=ylim, xlim=xlim)
   title(main=title, line=2)
 
-  addPolys(dm200, col="steelblue2", border="steelblue2")
+  plot(dm200, col="steelblue2", border="steelblue2", add=T)
 
-  addPolys(dm100, col="lightblue1", border="lightblue1")
+  plot(dm100, col="lightblue1", border="lightblue1", add=T)
 
-  addLines(zones, col="darkgoldenrod1", lwd=2)
+  lines(zones, col="darkgoldenrod1", lwd=2, add=T)
   
 #Overlay land and coastline such that any bad data (on land) is hidden
  
-  addPolys(land, col="khaki", border="khaki")
+  plot(land, col="khaki", border="khaki", add=T)
 
-  addLines(coast, col="black")
+  lines(coast, col="black", add=T)
   abline(h=b$slat, lwd=3)
   abline(h=b$nlat, lwd=3)
   abline(v=-b$wlon, lwd=3)
@@ -67,10 +72,10 @@ coverup=function(x, area=area){
   
   b=borders[which(borders$area==area),]
 
-land= importShapefile(file.path(bio.datadirectory,"polygons","Basemaps","Terrestrial", "landmass_region"))
-coast=importShapefile(file.path(bio.datadirectory, "polygons", "Basemaps", "Marine", "Coastline","coastline_polyline"))
-addPolys(land, col="khaki", border="khaki")
-  addLines(coast, col="black")
+land= vect(file.path(bio.datadirectory,"polygons","Basemaps","Terrestrial", "landmass_region.shp"))
+coast=vect(file.path(bio.datadirectory, "polygons", "Basemaps", "Marine", "Coastline","coastline_polyline.shp"))
+plot(land, col="khaki", border="khaki", add=T)
+  lines(coast, col="black", add=T)
   abline(h=b$slat, lwd=3)
   abline(h=b$nlat, lwd=3)
   abline(v=-b$wlon, lwd=3)
