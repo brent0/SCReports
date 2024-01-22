@@ -1,6 +1,7 @@
 Preliminary.survey.data = function (current_year) {
-  require(PBSmapping)
+  require(aegis)
   require(chron)
+  require(bio.snowcrab)
   
   wd = file.path(data_root, "bio.snowcrab", "reports", current_year, "JanuaryMeetings", "survey")
   if(!exists(wd))dir.create(wd, recursive= TRUE)
@@ -18,19 +19,22 @@ Preliminary.survey.data = function (current_year) {
   require(ROracle)
   con= dbConnect(DBI::dbDriver("Oracle"), oracle.username, oracle.password, oracle.server)
   
-  MPAFishMorph=dbGetQuery(con, ("SELECT * FROM
-    snowcrab.snstomachdetails"))
+  #MPAFishMorph=dbGetQuery(con, ("SELECT * FROM
+ #   snowcrab.snstomachdetails"))
   
-  
+  all=dbGetQuery(con, ("SELECT * FROM snowcrab.sncrabsets"))
   all$yr=NA
-  all$yr=as.numeric(as.character(years(as.chron(all$BOARD_DATE))))
+
+  #all$yr=as.numeric(as.character(years(as.chron(all$BOARD_DATE))))
   all$yr=lubridate::year(all$BOARD_DATE-2592000) #takes 30 days off date before determing tear- January survey finishes
   
   names(all)=tolower(names(all))
   all$X=-all$start_long       
   all$Y=all$start_lat
+  all$lon=all$X       
+  all$lat=all$Y
   all$EID=1:nrow(all)
-  all=as.EventData(all, projection="LL")
+ # all=as.EventData(all, projection="LL")
   
   
   #Create a folder for current year (if one doesn't exist)
@@ -55,15 +59,16 @@ Preliminary.survey.data = function (current_year) {
       SNCRABDETAILS.DUROMETRE, SNCRABDETAILS.BCD, SNCRABDETAILS.MISSING_LEGS, SNCRABSETS.START_LAT,
        SNCRABSETS.START_LONG FROM SNOWCRAB.SNCRABDETAILS SNCRABDETAILS, SNOWCRAB.SNCRABSETS SNCRABSETS
 WHERE SNCRABDETAILS.TRIP = SNCRABSETS.TRIP AND SNCRABDETAILS.SET_NO = SNCRABSETS.SET_NO AND ((SNCRABDETAILS.BCD=1))"))
-  
-  require(chron)
+
   bcd$yr=NA
   bcd$yr=lubridate::year(bcd$BOARD_DATE-2592000) #takes 30 days off date before determing tear- January survey finishes
   names(bcd)=tolower(names(bcd))
   bcd$X=-bcd$start_long
   bcd$Y=bcd$start_lat
+  bcd$lon=-bcd$start_long
+  bcd$lat=bcd$start_lat
   bcd$EID=1:nrow(bcd)
-  bcd=as.EventData(bcd, projection="LL")
+ # bcd=as.EventData(bcd, projection="LL")
   
   
   x1 <- bcd %>%
@@ -88,8 +93,8 @@ WHERE SNCRABDETAILS.TRIP = SNCRABSETS.TRIP AND SNCRABDETAILS.SET_NO = SNCRABSETS
   filename="SurveyStationsAgain.pdf"
   #PDF
   pdf(file=filename)
-  makemap(a, area="all", title=paste(yr, "Snow Crab Survey", sep=" "))
-  addPoints(data=a, col="black", pch=20, cex=.8)
+  makemap(area="all", title=paste(yr, "Snow Crab Survey", sep=" "))
+  points(x=vect(a), col="black", pch=20, cex=.8)
   dev.off()
   print(paste("Find file here: ", wd, filename,sep=""))
   
@@ -98,11 +103,11 @@ WHERE SNCRABDETAILS.TRIP = SNCRABSETS.TRIP AND SNCRABDETAILS.SET_NO = SNCRABSETS
   # PDF  
   filename="SurveyStationsNone.pdf"
   pdf(file=filename, width = 9)
-  makemap(a, area="all", title=paste(yr, "Survey Locations with No Snow Crab", sep=" "))
-  addPoints(data=a, col="black", pch=20, cex=.6)
+  makemap(area="all", title=paste(yr, "Survey Locations with No Snow Crab", sep=" "))
+  points(x=vect(a), col="black", pch=20, cex=.6)
   points(x=-59, y=43.2,col="black", pch=20, cex=.6)
   text("Survey Station", x=-59, y=43.2, cex=0.65, pos=4) 
-  addPoints(data=n, col="red", pch=20, cex=.6)
+  points(x=vect(n), col="red", pch=20, cex=.6)
   points(x=-59, y=43,col="red", pch=20, cex=.6)
   text("Station w/ No Snow Crab", x=-59, y=43, cex=0.65, pos=4) 
   dev.off()
@@ -110,11 +115,11 @@ WHERE SNCRABDETAILS.TRIP = SNCRABSETS.TRIP AND SNCRABDETAILS.SET_NO = SNCRABSETS
   
   filename="SurveyStationsBitter.pdf"
   pdf(file=filename, width = 9)
-  makemap(a, area="all", title=paste(yr, "Survey Locations with Bitter Snow Crab", sep=" "))
-  addPoints(data=a, col="black", pch=20, cex=.6)
+  makemap(area="all", title=paste(yr, "Survey Locations with Bitter Snow Crab", sep=" "))
+  points(x=vect(a), col="black", pch=20, cex=.6)
   points(x=-59, y=43.2,col="black", pch=20, cex=.6)
   text("Survey Station", x=-59, y=43.2, cex=0.65, pos=4) 
-  addPoints(data=b, col="red", pch=20, cex=.6)
+  points(x=vect(b), col="red", pch=20, cex=.6)
   points(x=-59, y=43,col="red", pch=20, cex=.6)
   text("Station w/ Bitter Crab", x=-59, y=43, cex=0.65, pos=4) 
   dev.off()
@@ -377,7 +382,7 @@ AND C.SPECCD_ID=N.SPECCD_ID" )
     pdf(file=filename, width = 10, height = 7)
     
     
-    makemap(zz, area="all", title=paste(zz$year[1], zz$name[1], sep=" "))
+    makemap(area="all", title=paste(zz$year[1], zz$name[1], sep=" "))
     
     #determine weight at 98th quantile and separate df into 2 df's
     #One all value below 98th, one equal to or above
@@ -440,25 +445,7 @@ AND C.SPECCD_ID=N.SPECCD_ID" )
   #Survey delta kg plots
   
   
-  library(marmap)
-  library(oce)
-  library(ocedata)
-  library(mapdata)
-  library(rnaturalearth)
-  b = getNOAA.bathy(lon1 = -66.1, lon2 = -56.6, lat1 = 42.8, lat2 = 47.4, resolution = 1)
-  data("coastlineWorldFine")
-  bf = fortify.bathy(b)
   
-  # get regional polygons
-  reg = map_data("world2Hires")
-  reg = subset(reg, region %in% c('Canada', 'USA'))
-  
-  # convert lat longs
-  reg$long = (360 - reg$long)*-1
-  
-  
-  world <- ne_countries(scale = "medium", returnclass = "sf")
-  class(world)
   
   require(aegis)
   sets =  snowcrab.db( DS="set.complete")
@@ -469,7 +456,7 @@ AND C.SPECCD_ID=N.SPECCD_ID" )
   all.p = all.p[which(all.p$yr <= current_year),]
   
   all.c = all[which(as.numeric(all$yr) == current_year),]
-  all.l = all[which(as.numeric(all$yr) == current_year-2),]
+  all.l = all[which(as.numeric(all$yr) == current_year-1),]
   
   
   all.c$delta.totmassmale.last = NA
@@ -483,8 +470,7 @@ AND C.SPECCD_ID=N.SPECCD_ID" )
   tomap = all.c[which(as.numeric(all.c$station) < 980),]
   tomap = tomap[which(is.finite(tomap$delta.totmassmale.last)),]
   
-  map<-ggplot(data = world) +#this one plots location of receivers by OTN station name.  This confirms that the station names are not consistent with locations
-    # add 100m contour
+  map<-ggplot(data = world) +
     geom_contour(data = bf, 
                  aes(x=x, y=y, z=z),
                  breaks=c(-100),
@@ -504,14 +490,14 @@ AND C.SPECCD_ID=N.SPECCD_ID" )
     
     geom_point(data = tomap, aes(x = lon, y = lat, col = delta.totmassmale.last), size = 2, stroke = 2, 
                shape = 21) +
-    labs(title = paste("Change in total mass of males 2021 compared to 2019\n  -201kg total from qualifing stations\n 79% of 2019 total male mass\n Does not take into account swept area", sep =""), color = "kg\n") +
+    labs(title = paste("Change in total mass of males ", current_year, "compared to ",current_year-1, "\n Does not take into account swept area", sep =""), color = "kg\n") +
     scale_color_gradient2(low="blue", mid="white", high="red", 
                           limits = c(-20, 20))+
     coord_sf(xlim = c(-66.1, -56.6), ylim = c(42.8, 47.4), expand = TRUE)+
     labs(x="Longitude", y="Latitude")+
     theme_bw()
   map
-  ggsave(filename = "SurveyStation.totmass.males.2021x2019.pdf", device = "pdf", width = 12, height = 12)
+  ggsave(filename = paste("SurveyStation.totmass.males.", current_year,"x", current_year-1,".pdf", sep = ""), device = "pdf", width = 12, height = 12)
   
   sum(tomap$delta.totmassmale.last)
   sum(tomap$totmassmale.last)
@@ -552,14 +538,14 @@ AND C.SPECCD_ID=N.SPECCD_ID" )
     
     geom_point(data = tomap, aes(x = lon, y = lat, col = delta.totmassmale.last), size = 2, stroke = 2, 
                shape = 21) +
-    labs(title = paste("Change in total mass of males 2022 compared to mean of previous 10 years\n  -112kg total from qualifing stations\n 87% of previous 10 years mean total male mass\n Does not take into account swept area ", sep =""), color = "kg\n") +
+    labs(title = paste("Change in total mass of males ",current_year," compared to mean of previous 10 years\n Does not take into account swept area ", sep =""), color = "kg\n") +
     scale_color_gradient2(low="blue", mid="white", high="red", 
                           limits = c(-20, 20))+
     coord_sf(xlim = c(-66.1, -56.6), ylim = c(42.8, 47.4), expand = TRUE)+
     labs(x="Longitude", y="Latitude")+
     theme_bw()
   map
-  ggsave(filename = "SurveyStation.totmass.males.2022x-10yr.pdf", device = "pdf", width = 12, height = 12)
+  ggsave(filename = paste("SurveyStation.totmass.males.",current_year,"x-10yr.pdf", sep  = ""), device = "pdf", width = 12, height = 12)
   
   sum(tomap$delta.totmassmale.last)
   sum(tomap$totmassmale.last)
@@ -604,14 +590,14 @@ AND C.SPECCD_ID=N.SPECCD_ID" )
     
     geom_point(data = tomap, aes(x = lon, y = lat, col = delta.totmasscommmale.last), size = 2, stroke = 2, 
                shape = 21) +
-    labs(title = paste("Change in total mass of commercial males 2022 compared to 2021\n  -42kg total from qualifing stations\n 92% of 2019 total male mass\n Does not take into account swept area", sep =""), color = "kg\n") +
+    labs(title = paste("Change in total mass of commercial males ", current_year, " compared to ", current_year-1, "\n Does not take into account swept area", sep =""), color = "kg\n") +
     scale_color_gradient2(low="blue", mid="white", high="red", 
                           limits = c(-15, 15))+
     coord_sf(xlim = c(-66.1, -56.6), ylim = c(42.8, 47.4), expand = TRUE)+
     labs(x="Longitude", y="Latitude")+
     theme_bw()
   map
-  ggsave(filename = "SurveyStation.totmass.comm.males.2022x2021.pdf", device = "pdf", width = 12, height = 12)
+  ggsave(filename = paste("SurveyStation.totmass.comm.males.", current_year, "x", current_year-1, ".pdf", sep = ""), device = "pdf", width = 12, height = 12)
   
   sum(tomap$delta.totmasscommmale.last)
   sum(tomap$totmasscommmale.last)
@@ -653,14 +639,14 @@ AND C.SPECCD_ID=N.SPECCD_ID" )
     
     geom_point(data = tomap, aes(x = lon, y = lat, col = delta.totmasscommmale.last), size = 2, stroke = 2, 
                shape = 21) +
-    labs(title = paste("Change in total mass of males 2021 compared to mean of previous 10 years\n  -27kg total from qualifing stations\n 95% of previous 10 years mean total male mass\n Does not take into account swept area ", sep =""), color = "kg\n") +
+    labs(title = paste("Change in total mass of males ", current_year, " compared to mean of previous 10 years\n Does not take into account swept area ", sep =""), color = "kg\n") +
     scale_color_gradient2(low="blue", mid="white", high="red", 
                           limits = c(-15, 15))+
     coord_sf(xlim = c(-66.1, -56.6), ylim = c(42.8, 47.4), expand = TRUE)+
     labs(x="Longitude", y="Latitude")+
     theme_bw()
   map
-  ggsave(filename = "SurveyStation.totmass.comm.males.2021x-10yr.pdf", device = "pdf", width = 12, height = 12)
+  ggsave(filename = paste("SurveyStation.totmass.comm.males.", current_year, "x-10yr.pdf", sep = ""), device = "pdf", width = 12, height = 12)
   
   sum(tomap$delta.totmasscommmale.last)
   sum(tomap$totmasscommmale.last)
@@ -668,9 +654,98 @@ AND C.SPECCD_ID=N.SPECCD_ID" )
   sum(tomap$totmass.male.com)/sum(tomap$totmasscommmale.last)
   
   
+
+  
+  tomap = all.c[which(as.numeric(all.c$station) < 980),]
+  tomap = tomap[which(is.finite(tomap$delta.totmasscommmale.last)),]
+  
+  
+  map<-ggplot(data = world) +#this one plots location of receivers by OTN station name.  This confirms that the station names are not consistent with locations
+    # add 100m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-100),
+                 size=c(0.3),
+                 colour="grey")+
+    
+    # add 250m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-250),
+                 size=c(0.6),
+                 colour="grey")+
+    
+    # add coastline
+    geom_polygon(data = reg, aes(x = long, y = lat, group = group), 
+                 fill = "darkgrey", color = NA) + 
+    
+    geom_point(data = tomap, aes(x = lon, y = lat, col = delta.totmasscommmale.last), size = 2, stroke = 2, 
+               shape = 21) +
+    labs(title = paste("Change in total mass of males ", current_year, " compared to mean of previous 10 years\n Does not take into account swept area ", sep =""), color = "kg\n") +
+    scale_color_gradient2(low="blue", mid="white", high="red", 
+                          limits = c(-15, 15))+
+    coord_sf(xlim = c(-66.1, -56.6), ylim = c(42.8, 47.4), expand = TRUE)+
+    labs(x="Longitude", y="Latitude")+
+    theme_bw()
+  map
+  ggsave(filename = paste("SurveyStation.totmass.comm.males.", current_year, "x-10yr.pdf", sep = ""), device = "pdf", width = 12, height = 12)
+  
+    
+  
+  
+  ###############################
+  
+  con= dbConnect(DBI::dbDriver("Oracle"), oracle.username, oracle.password, oracle.server)
+  
+  
+  tm = dbGetQuery(con, ("SELECT * from SC_TEMP_MERGE"))
+  
+  
+  tomap = all.c[which(as.numeric(all.c$station) < 980),]
+  tomap = tomap[which(is.finite(tomap$delta.totmasscommmale.last)),]
+  
+  
+  map<-ggplot(data = world) +#this one plots location of receivers by OTN station name.  This confirms that the station names are not consistent with locations
+    # add 100m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-100),
+                 size=c(0.3),
+                 colour="grey")+
+    
+    # add 250m contour
+    geom_contour(data = bf, 
+                 aes(x=x, y=y, z=z),
+                 breaks=c(-250),
+                 size=c(0.6),
+                 colour="grey")+
+    
+    # add coastline
+    geom_polygon(data = reg, aes(x = long, y = lat, group = group), 
+                 fill = "darkgrey", color = NA) + 
+    
+    geom_point(data = tomap, aes(x = lon, y = lat, col = delta.totmasscommmale.last), size = 2, stroke = 2, 
+               shape = 21) +
+    labs(title = paste("Change in total mass of males ", current_year, " compared to mean of previous 10 years\n Does not take into account swept area ", sep =""), color = "kg\n") +
+    scale_color_gradient2(low="blue", mid="white", high="red", 
+                          limits = c(-15, 15))+
+    coord_sf(xlim = c(-66.1, -56.6), ylim = c(42.8, 47.4), expand = TRUE)+
+    labs(x="Longitude", y="Latitude")+
+    theme_bw()
+  map
+  ggsave(filename = paste("SurveyStation.totmass.comm.males.", current_year, "x-10yr.pdf", sep = ""), device = "pdf", width = 12, height = 12)
+  
+  
+  
+  
+  
   
   
   
   
 }
+
+
+
+
 

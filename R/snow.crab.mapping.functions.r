@@ -5,7 +5,7 @@
 require( maptools )
 require( sp )
 require(terra)
-makemap= function(x,area="ens", addlabels=T, title="") {
+makemap= function(area="ens", addlabels=T, title="") {
 sc.shap.dir = file.path(bio.datadirectory, "bio.snowcrab", "maps", "shapefiles")
 ped.shap.dir = file.path(bio.datadirectory, "Science", "PED", "OverlayBoxes")
 mar.shap.dir = file.path(bio.datadirectory, "polygons", "Basemaps", "Marine", "Bathymetry")
@@ -33,22 +33,22 @@ man.shap.dir = file.path(bio.datadirectory, "polygons", "Management_Areas", "Fis
 
   ylim=c(b$slat,b$nlat)
   xlim=c(-(b$wlon),-(b$elon))
- 
-  plot(basemap, plt=c(.08,.99,.08,.99), col="royalblue2", border="black", font.lab=2,
-  xlab="Longitude", ylab="Latitude", axes=T, tck=-.01, ylim=ylim, xlim=xlim)
+
+  plot(basemap,  col="royalblue2", border="black", font.lab=2,
+  xlab="Longitude", ylab="Latitude", axes=T, tck=-.01, ylim=ylim, xlim=xlim, buffer=F)
   title(main=title, line=2)
 
   plot(dm200, col="steelblue2", border="steelblue2", add=T)
 
   plot(dm100, col="lightblue1", border="lightblue1", add=T)
 
-  lines(zones, col="darkgoldenrod1", lwd=2, add=T)
+  lines(zones, col="darkgoldenrod1", lwd=2)
   
 #Overlay land and coastline such that any bad data (on land) is hidden
  
   plot(land, col="khaki", border="khaki", add=T)
 
-  lines(coast, col="black", add=T)
+  lines(coast, col="black")
   abline(h=b$slat, lwd=3)
   abline(h=b$nlat, lwd=3)
   abline(v=-b$wlon, lwd=3)
@@ -66,7 +66,7 @@ man.shap.dir = file.path(bio.datadirectory, "polygons", "Management_Areas", "Fis
 
 #Allows replotting of land mass over points once plotted
 
-coverup=function(x, area=area){
+coverup=function(area=area){
   sc.shap.dir = file.path(bio.datadirectory, "bio.snowcrab", "maps", "shapefiles")
   borders= read.csv(file=file.path(sc.shap.dir,"areaborders.csv"), head=T, sep=",")
   
@@ -75,7 +75,7 @@ coverup=function(x, area=area){
 land= vect(file.path(bio.datadirectory,"polygons","Basemaps","Terrestrial", "landmass_region.shp"))
 coast=vect(file.path(bio.datadirectory, "polygons", "Basemaps", "Marine", "Coastline","coastline_polyline.shp"))
 plot(land, col="khaki", border="khaki", add=T)
-  lines(coast, col="black", add=T)
+  lines(coast, col="black")
   abline(h=b$slat, lwd=3)
   abline(h=b$nlat, lwd=3)
   abline(v=-b$wlon, lwd=3)

@@ -62,12 +62,12 @@ require(sp)
       a = NULL
       
       if (planar) {
-        poly.planar = lonlat2planar (poly, projection="lambert.conic")
-        b = point.in.polygon(x$plon, x$plat, poly.planar$plon, poly.planar$plat) 
+        poly.planar = lonlat2planar (poly, proj.type="lambert.conic")
+        b = sp::point.in.polygon(x$plon, x$plat, poly.planar$plon, poly.planar$plat) 
       }
       
       if (!planar) {
-        b = point.in.polygon(x$lon, x$lat, poly$lon, poly$lat)
+        b = sp::point.in.polygon(x$lon, x$lat, poly$lon, poly$lat)
       }
       a = which( b > 0 )
       

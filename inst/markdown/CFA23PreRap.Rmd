@@ -1,7 +1,7 @@
 ---
 title: "CFA-23 PreRap"
 author: "Snow Crab Unit"
-date: "11/19/2021"
+date: "2024"
 output: 
   beamer_presentation:
     theme: "Boadilla"
@@ -26,7 +26,7 @@ library(tidyverse)
 
 library(kableExtra)
 
-year = 2021
+year = 2023
 wd = file.path(bio.datadirectory, "bio.snowcrab", "reports", year, "JanuaryMeetings", "fishery")
 wd2 = file.path(bio.datadirectory, "bio.snowcrab", "reports", year, "JanuaryMeetings", "acoustic")
 ```

@@ -863,16 +863,16 @@ January.industry.meeting.data = function (current_year) {
     filename=paste(a,"_past_two_years_fishing_positions.pdf", sep="")
 
     if(any(c("cfa23", "cfa24zoom") %in% a)){
-      pdf(file=file.path(wd, filename), width = 12.5, height = 13)
+      #pdf(file=file.path(wd, filename), width = 12.5, height = 13)
     }else{
-      pdf(file=file.path(wd, filename), width = 10.2, height = 10)
+      #pdf(file=file.path(wd, filename), width = 10.2, height = 10)
     }
 
   fishmap(a = logs[iyear,], b= logs[iyear1,], area = a, cy = iy)
     dev.off()
     print(paste(filename, " created", sep=""))
   }
-  
+
   par(mar = tparmar)
   
   # Plot Previous 2 Seasons Fishing Positions by Season (Q)
@@ -881,7 +881,7 @@ January.industry.meeting.data = function (current_year) {
   #Spring
   
   areas=c("cfa23", "cfa24zoom", "nens", "sens")
-  
+
   #Create PDF's
   for (a in areas){
     filename=paste(a,"_spring_fishing_positions", ".pdf", sep="")
@@ -1855,6 +1855,8 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
   names(all)=tolower(names(all))
   all$X=-all$start_long
   all$Y=all$start_lat
+  all$lat=all$Y
+  all$lon = all$X
   all$EID=1:nrow(all)
  # all=as.EventData(all, projection="LL")
   
@@ -1864,8 +1866,8 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
   
   #PDF
   pdf(file=file.path(wd, filename), width = 9)
-  makemap(a, area="all", title=paste(iy, "Snow Crab Survey", sep=" "))
-  points(data=a, col="black", pch=20, cex=.6, add=T)
+  makemap(area="all", title=paste(iy, "Snow Crab Survey", sep=" "))
+  points(x=vect(a), col="black", pch=20, cex=.6)
   dev.off()
   print(paste(filename, " created", sep=""))
   
@@ -1874,15 +1876,17 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
   notcomplete = planned[which(!as.numeric(planned$Station) %in% as.numeric(a$station)),]
   notcomplete$X = notcomplete$Long.Start
   notcomplete$Y = notcomplete$Lat.Start
+  notcomplete$lon = notcomplete$X
+  notcomplete$lat = notcomplete$Y
   notcomplete$EID=1:nrow(notcomplete)
   #notcomplete=as.EventData(notcomplete, projection="LL")
   
   filename="All_survey_stations_plus_fail.pdf"
   
   pdf(file=file.path(wd, filename), width = 9)
-  makemap(a, area="all", title=paste(iy, "Planned Snow Crab Survey", sep=" "))
-  points(data=a, col="black", pch=20, cex=.6, add=T)
-  points(data=notcomplete, col="red", pch=20, cex=.6, add=T)
+  makemap(area="all", title=paste(iy, "Planned Snow Crab Survey", sep=" "))
+  points(x=vect(a), col="black", pch=20, cex=.6)
+  points(x=vect(notcomplete), col="red", pch=20, cex=.6)
   
   dev.off()
   print(paste(filename, " created", sep=""))
@@ -2139,24 +2143,25 @@ fishmap=function(a, b, area, cy){
   cnew = rbind(b,a)
   rows <- sample(nrow(cnew))
   cnew <- cnew[rows, ]
-  makemap(x,area=area, title="Reported Fishing Positions", addlabels=F)
+  makemap(area=area, title="Reported Fishing Positions", addlabels=F)
 
   # all=as.EventData(cnew, projection= "LL")
   # all$EID = 1:nrow(all)
   # addPoints(data=all, cex = 3, col=all$col, pch=20)
   #last= logs[iyear1,]
    #last=as.EventData(b, projection= "LL")
-   points(x=vect(b), cex = 3, col="yellow", pch=20, add=T)
+   points(x=vect(b), cex = 3, col="yellow", pch=20)
    #current= logs[iyear,]
   
    #current=as.EventData(a, projection= "LL")
-  points(x=vect(a), cex = 3, col=scales::alpha("red", .2), pch=20, add=T)
+  points(x=vect(a), cex = 3, col=scales::alpha("red", .2), pch=20)
    coverup(area=area)
    legend("bottomright", paste(c(cy-1, cy)), pch=20, col=c("yellow","red"), bty="o", bg="grey75", pt.cex=1.5)
   
 }
 
 seasonmap=function(a, b, area, cy, season){
+
   # a$X = round_any(a$X, .0166666666666667)
   # a$Y = round_any(a$Y, .0166666666666667)
   # b$X = round_any(b$X, .0166666666666667)
@@ -2168,15 +2173,15 @@ seasonmap=function(a, b, area, cy, season){
   rows <- sample(nrow(cnew))
   cnew <- cnew[rows, ]
   
-  makemap(x,area=area, title=paste(season, " Fishing Positions", sep = ""), addlabels=F)
+  makemap(area=area, title=paste(season, " Fishing Positions", sep = ""), addlabels=F)
   # all=as.EventData(cnew, projection= "LL")
   # all$EID = 1:nrow(all)
   # addPoints(data=all, cex = 3, col=all$col, pch=20)
   #last=as.EventData(b, projection= "LL")
-  points(x=vect(b), cex = 3, col="yellow", pch=20, add=T)
+  points(x=vect(b), cex = 3, col="yellow", pch=20)
   
   #current=as.EventData(a, projection= "LL")
-  points(x=vect(a), cex = 3, col=scales::alpha("red", .2), pch=20, add=T)
+  points(x=vect(a), cex = 3, col=scales::alpha("red", .2), pch=20)
 
   coverup(area=area)
   legend("bottomright", paste(c(cy-1, cy)), pch=20, col=c("yellow","red"), bty="o", bg="grey75", pt.cex=1.5)
@@ -2186,10 +2191,10 @@ softbyarea=function(dta, areastr){
   rows <- sample(nrow(dta))
   dta <- dta[rows, ]
   #makemap(dta, area=areastr, addlabels=F,title=paste(dta$year[1]))
-  makemap(dta, area=areastr, addlabels=F)
-  if(nrow(dta[dta$color=="green4",])>0)points(x=vect(dta[dta$color=="green4",]), cex = 3, col= "black", bg="green4", pch=21, add=T)
-  if(nrow(dta[dta$color=="yellow",])>0)points(x=vect(dta[dta$color=="yellow",]), cex = 3, col= "black", bg="yellow", pch=21, add=T)
-  if(nrow(dta[dta$color=="red",])>0)points(x=vect(dta[dta$color=="red",]), cex = 3, col= "black", bg="red", pch=21, add=T)
+  makemap(area=areastr, addlabels=F)
+  if(nrow(dta[dta$color=="green4",])>0)points(x=vect(dta[dta$color=="green4",]), cex = 3, col= "black", bg="green4", pch=21)
+  if(nrow(dta[dta$color=="yellow",])>0)points(x=vect(dta[dta$color=="yellow",]), cex = 3, col= "black", bg="yellow", pch=21)
+  if(nrow(dta[dta$color=="red",])>0)points(x=vect(dta[dta$color=="red",]), cex = 3, col= "black", bg="red", pch=21)
   if(areastr == "cfa24zoom"){
     points(x=-62.4, y=44.05,  col="black", bg="green4", pch=21, cex=1.1) # add legend like key
     text("0-10% Soft", x= -62.35, y=44.05, font=1, cex=.85, pos=4, col="white")
