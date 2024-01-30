@@ -33,6 +33,7 @@ if(0){ # Do not want to execute report creation on package loading, run
   #Accoustic.data(current_year)
     
   ##Need to add one that creates one presentation for all years as this is what we do starting 2021.
+  
   knitr::opts_chunk$set(warning = FALSE, message = FALSE)
   #rmarkdown::render("NENSPreRap.Rmd", output_file = file.path(data_root, "bio.snowcrab", "reports", current_year, "JanuaryMeetings", "NENSPreRap.pdf"))
   

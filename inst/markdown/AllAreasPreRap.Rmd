@@ -54,7 +54,7 @@ wd4 = file.path(data_root, "bio.snowcrab", "reports")
 ### Area Overview
 
 ```{r figure.area1, out.width="100%", fig.align="center"}
-knitr::include_graphics(file.path(wd4, "areamap.png"))
+knitr::include_graphics(file.path(wd4, "areamap2.png"))
 ```
 
 ---
@@ -126,13 +126,13 @@ knitr::include_graphics(file.path("D:", "bio.data", "bio.snowcrab", "output", "m
 ### Landings Locations
 ::: columns
 ::: column
-2021
+2022
 ```{r figure.lan2, out.width="100%", fig.align="center"}
 knitr::include_graphics(file.path("D:", "bio.data", "bio.snowcrab", "output", "maps", "logbook", "snowcrab", "annual", "landings", paste("landings.", year-1, ".png", sep = "")))
 ```
 :::
 ::: column
-2022
+2023
 ```{r figure.lan5, out.width="100%", fig.align="center"}
 knitr::include_graphics(file.path("D:", "bio.data", "bio.snowcrab", "output", "maps", "logbook", "snowcrab", "annual", "landings", paste("landings.", year, ".png", sep = "")))
 ```
@@ -151,13 +151,13 @@ knitr::include_graphics(file.path("D:", "bio.data", "bio.snowcrab", "output", "m
 ### Effort Locations
 ::: columns
 ::: column
-2021
+2022
 ```{r figure.eff2, out.width="100%", fig.align="center"}
 knitr::include_graphics(file.path("D:", "bio.data", "bio.snowcrab", "output", "maps", "logbook", "snowcrab", "annual", "effort", paste("effort.", year-1, ".png", sep = "")))
 ```
 :::
 ::: column
-2022
+2023
 ```{r figure.eff5, out.width="100%", fig.align="center"}
 knitr::include_graphics(file.path("D:", "bio.data", "bio.snowcrab", "output", "maps", "logbook", "snowcrab", "annual", "effort", paste("effort.", year, ".png", sep = "")))
 ```
@@ -189,13 +189,13 @@ knitr::include_graphics(file.path("D:", "bio.data", "bio.snowcrab", "output", "m
 ### Catch Rate Locations
 ::: columns
 ::: column
-2021
+2022
 ```{r figure.catch4, out.width="100%", fig.align="center"}
 knitr::include_graphics(file.path("D:", "bio.data", "bio.snowcrab", "output", "maps", "logbook", "snowcrab", "annual", "cpue", paste("cpue.", year-1, ".png", sep = "")))
 ```
 :::
 ::: column
-2022
+2023
 ```{r figure.catch5, out.width="100%", fig.align="center"}
 knitr::include_graphics(file.path("D:", "bio.data", "bio.snowcrab", "output", "maps", "logbook", "snowcrab", "annual", "cpue", paste("cpue.", year, ".png", sep = "")))
 ```
@@ -292,7 +292,7 @@ knitr::include_graphics(file.path(wd, "observersummary2.pdf"))
 
  
 ### Crab Size
-*Based on very small amount of observer data in 2020 to 2022
+*Based on very small amount of observer data in 2020 to 2023
 ```{r figure.obs2, out.width="65%", fig.align="center"}
 knitr::include_graphics(file.path(wd, "mean_cw_observed.pdf"))
 ```
@@ -307,7 +307,7 @@ knitr::include_graphics(file.path(wd, "cw_vs_mass.pdf"))
 ---
 
 ### Crab Size
-*Based on very small amount of observer data in 2020 to 2022 
+*Based on very small amount of observer data in 2020 to 2023 
 ```{r figure.obs4, out.width="65%", fig.align="center"}
 knitr::include_graphics(file.path(wd, "mean_weight_observed.pdf"))
 ```
@@ -464,9 +464,8 @@ knitr::include_graphics(file.path(wd, "cfa24_soft_crab_positions_68.pdf"))
 
 # Survey
 
--   Great Start  
+-   No issues  
 
--   Engine Failure, didn't complete SENS
 
 ---
 
@@ -507,13 +506,6 @@ knitr::include_graphics(file.path(wd3, "SurveyStationsTiming-10year.pdf"))
 ```
 
 ---
-
-### Survey Timing 
-```{r figure.tim2, out.width="100%", fig.align="left"}
-knitr::include_graphics(file.path(data_root, "bio.snowcrab", "reports", "2021", "JanuaryMeetings", "survey", "SurveyStationsTiming-10year.pdf"))
-```
-
---- 
 
 <!-- ### Female Crab -->
 
@@ -670,7 +662,7 @@ knitr::include_graphics(file.path(data_root, "bio.snowcrab", "reports", "2021", 
 
 ### Temperatures
 
-```{r figure.temp1, out.width="50%", fig.align="center"}
+```{r figure.temp1, out.width="100%", fig.align="center"}
 knitr::include_graphics(file.path("D:", "bio.data", "bio.snowcrab", "assessments", year, "timeseries", "survey", "t.pdf"))
 ```
 

@@ -859,13 +859,14 @@ January.industry.meeting.data = function (current_year) {
   tparmar = par()$mar
   xmar = tparmar - c(0, tparmar[2], 0, 0)
   par(mar=xmar)
+
   for (a in areas){
     filename=paste(a,"_past_two_years_fishing_positions.pdf", sep="")
 
     if(any(c("cfa23", "cfa24zoom") %in% a)){
-      #pdf(file=file.path(wd, filename), width = 12.5, height = 13)
+      pdf(file=file.path(wd, filename), width = 12.5, height = 13)
     }else{
-      #pdf(file=file.path(wd, filename), width = 10.2, height = 10)
+      pdf(file=file.path(wd, filename), width = 10.2, height = 10)
     }
 
   fishmap(a = logs[iyear,], b= logs[iyear1,], area = a, cy = iy)
@@ -1632,9 +1633,7 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
     
     for (a in areas) {
       
-      #wd=paste("C:/Rsaves/fishery/",iyear,"/observer", sep="")
-      #setwd(wd)
-      
+    
       iarea=which(x$area==a)
       n=x[intersect(i,iarea) ,]
       if(nrow(n)==0){
@@ -2156,7 +2155,7 @@ fishmap=function(a, b, area, cy){
    #current=as.EventData(a, projection= "LL")
   points(x=vect(a), cex = 3, col=scales::alpha("red", .2), pch=20)
    coverup(area=area)
-   legend("bottomright", paste(c(cy-1, cy)), pch=20, col=c("yellow","red"), bty="o", bg="grey75", pt.cex=1.5)
+   add_legend("bottomright", legend = paste(c(cy-1, cy)), pch=20, col=c("yellow","red"), bty="o", bg="grey75", pt.cex=1.5)
   
 }
 
@@ -2184,7 +2183,7 @@ seasonmap=function(a, b, area, cy, season){
   points(x=vect(a), cex = 3, col=scales::alpha("red", .2), pch=20)
 
   coverup(area=area)
-  legend("bottomright", paste(c(cy-1, cy)), pch=20, col=c("yellow","red"), bty="o", bg="grey75", pt.cex=1.5)
+  add_legend("bottomright", legend = paste(c(cy-1, cy)), pch=20, col=c("yellow","red"), bty="o", bg="grey75", pt.cex=1.5)
 }
 softbyarea=function(dta, areastr){
 
