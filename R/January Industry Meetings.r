@@ -18,7 +18,7 @@ January.industry.meeting.data = function (current_year) {
   rawfile=file.path(wd, paste("logbook.",current_year,".rdata", sep=""))
   update = F
   if(!file.exists(rawfile)) update = T
-  if(!update)if(lubridate::hour(lubridate::as.period(lubridate::now() - file.info(rawfile)$mtime) ) > 24) update = T
+  if(!update)if(lubridate::as.period(lubridate::now() - file.info(rawfile)$mtime)  > lubridate::period(num = 24, units = "hour")) update = T
   if(update){
     
     con= ROracle::dbConnect(DBI::dbDriver("Oracle"), oracle.username, oracle.password, oracle.server)
@@ -1068,12 +1068,19 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
   put$`Traps Sampled` = as.numeric(put$`Traps Sampled`)
   put$`Traps Observed` = as.numeric(put$`Traps Observed`)
   put$`Percent Observed`[which(put$`Percent Observed` == 'NA(NA)')] = '-'
-  #source("C:/Scripts/functions/tab.4.tex.r")
-  kbl(x = put[c(2,7)], row.names = F, "latex", booktabs = T) %>%
-    pack_rows(index = table(put$Year)) %>%
-    kable_classic() %>%
-    kable_styling(latex_options = c("striped", "scale_down")) %>%
-    as_image(file = file.path(wd,  "observerpercent5year.pdf"))
+  
+  kout = put[c(2,7)]
+  kout = tableGrob(kout, rows = NULL)
+  pdf_file <- "observerpercent5year.pdf"
+  ggsave(pdf_file, plot = kout, width = 10, height = 8, device = "pdf")
+  # Display the path to the saved PDF file
+  pdf_file
+  
+  #kbl(x = put[c(2,7)], row.names = F, "latex", booktabs = T) %>%
+  #  pack_rows(index = table(put$Year)) %>%
+  #  kable_classic() %>%
+  #  kable_styling(latex_options = c("striped", "scale_down")) %>%
+  #  as_image(file = file.path(wd,  "observerpercent5year.pdf"))
   
   
   
@@ -1092,20 +1099,26 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
   put$`Traps Sampled` = as.numeric(put$`Traps Sampled`)
   put$`Traps Observed` = as.numeric(put$`Traps Observed`)
   put$`Percent Observed`[which(put$`Percent Observed` == 'NA(NA)')] = '-'
-  #source("C:/Scripts/functions/tab.4.tex.r")
-  kbl(x = put, row.names = F, "latex", booktabs = T) %>%
-    kable_classic() %>%
-    kable_styling(latex_options = c("striped", "scale_down")) %>%
-    as_image(file = file.path(wd,  "observersummary2.pdf"))
+
+  kout = tableGrob(put, rows = NULL)
+  pdf_file <- "observersummary2.pdf"
+  ggsave(pdf_file, plot = kout, width = 10, height = 8, device = "pdf")
+  # Display the path to the saved PDF file
+  pdf_file
   
-  
-  
-  
-  pdf(file = file.path(wd, "observersummary.pdf"))
-  
-  grid.table(put, theme=ttheme_default(), rows= NULL)
-  dev.off()
-  
+  # kbl(x = put, row.names = F, "latex", booktabs = T) %>%
+  #   kable_classic() %>%
+  #   kable_styling(latex_options = c("striped", "scale_down")) %>%
+  #   as_image(file = file.path(wd,  "observersummary2.pdf"))
+  # 
+  # 
+  # 
+  # 
+  # pdf(file = file.path(wd, "observersummary.pdf"))
+  # 
+  # grid.table(put, theme=ttheme_default(), rows= NULL)
+  # dev.off()
+  # 
   # --------------------------------------
   # Use the script below to create the map of soft crab sampling locations
   
@@ -1420,16 +1433,22 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
   #names(table1a) = c("Area", "Year", "Landings", "% Observed", "Observed Soft", "Total Soft")
   tx = soft.sum[,c("Area", "Year", "Landings(mt)", "% Observed", "Observed Soft(mt)", "Total Soft(mt)")]
   tx$Area = "         "
-  tx %>%
-    kbl(row.names = F, "latex", longtable = F, booktabs = T) %>%
-    pack_rows(index = table(soft.sum$Area), indent = F) %>%
-    kable_classic() %>%
-    column_spec(1, bold = T, width = "5em") %>%
-    row_spec(0,bold=TRUE) %>% 
-    kable_styling(latex_options = c("striped", "scale_down")) %>%
-    as_image(file = file.path(wd,  "softsummary2.pdf"))
+  kout = tableGrob(tx, rows = NULL)
+  pdf_file <- "softsummary2.pdf"
+  ggsave(pdf_file, plot = kout, width = 10, height = 8, device = "pdf")
+  # Display the path to the saved PDF file
+  pdf_file
   
-  
+   # tx %>%
+   #  kbl(row.names = F, "latex", longtable = F, booktabs = T) %>%
+   #  pack_rows(index = table(soft.sum$Area), indent = F) %>%
+   #  kable_classic() %>%
+   #  column_spec(1, bold = T, width = "5em") %>%
+   #  row_spec(0,bold=TRUE) %>% 
+   #  kable_styling(latex_options = c("striped", "scale_down")) %>%
+   #  as_image(file = file.path(wd,  "softsummary2.pdf"))
+   # 
+   # 
   
   #-------------------------------------------------
   # Use below to save a text file of the locations of soft crab to plot in MapInfo
@@ -1941,15 +1960,21 @@ out$Area[which(out$Area == "4X")] = "CFA 4X"
   names(table1a) = c("Area", "Year", "Landings", "Catch Rate (kg/trap)", "TAC", "Catch Rate (lbs/trap)")
   tx = table1a[,c("Area","Year", "TAC", "Landings", "Catch Rate (lbs/trap)")]
   tx$Area = "         "
-  tx %>%
-    kbl(digits = 0, "latex", longtable = T, booktabs = T) %>%
-    pack_rows(index = table(table1a$Area), indent = F) %>%
-    kable_classic() %>%
-    column_spec(1, bold = T, width = "5em") %>%
-    row_spec(0,bold=TRUE) %>% 
-    kable_styling(latex_options = c("striped", "scale_down")) %>%
-    as_image(file = file.path(wd,  "landing_data_Tac.pdf"))
+  kout = tableGrob(tx, rows = NULL)
+  pdf_file <- "landing_data_Tac.pdf"
+  ggsave(pdf_file, plot = kout, width = 10, height = 8, device = "pdf")
+  # Display the path to the saved PDF file
+  pdf_file
   
+   # tx %>%
+   #  kbl(digits = 0, "latex", longtable = T, booktabs = T) %>%
+   #  pack_rows(index = table(table1a$Area), indent = F) %>%
+   #  kable_classic() %>%
+   #  column_spec(1, bold = T, width = "5em") %>%
+   #  row_spec(0,bold=TRUE) %>% 
+   #  kable_styling(latex_options = c("striped", "scale_down")) %>%
+   #  as_image(file = file.path(wd,  "landing_data_Tac.pdf"))
+   # 
   
   write.csv(table1, file = file.path(wd, "landing_data2.csv"), row.names = FALSE)
   write.csv(table1a, file = file.path(wd, "landing_data_Tac.csv"), row.names = FALSE)

@@ -53,7 +53,7 @@ wd4 = file.path(data_root, "bio.snowcrab", "reports")
 
 ### Area Overview
 
-```{r figure.area1, out.width="100%", fig.align="center"}
+```{r figure.area1, out.width="80%", fig.align="center"}
 knitr::include_graphics(file.path(wd4, "areamap2.png"))
 ```
 
